@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: Apache-2.0
+
+
+config CAPABILITY_WAKEUP
+	bool "Enable voice wake-up"
+    select GCP
+    select GCL_COMP_RES
+    select GCS_SERVICE_WAKEUP
+    select GCL_WAKEUP
+	default n
+
+config CAPABILITY_SPD
+	bool "Enable SPD"
+    select GCP
+    select GCL_COMP_RES
+    select GCS_SERVICE_SPD
+    select GCL_SPD
+	default n
+
+config CAPABILITY_QRCODE
+	bool "Enable qrcode"
+    select GCP
+    select GCL_COMP_RES
+    select GCS_SERVICE_QRCODE
+    select GCL_QRCODE
+	default n
+
+if CAPABILITY_WAKEUP
+    config GCL_HEAP_SRAM_SIZE
+        default 40960
+
+    config GCL_HEAP_PSRAM_SIZE
+        default 153600
+
+    config GCL_HEAP_SRAM_NOCACHE_SIZE
+        default 20480
+
+    config GCL_HEAP_PSRAM_NOCACHE_SIZE
+        default 20480
+endif

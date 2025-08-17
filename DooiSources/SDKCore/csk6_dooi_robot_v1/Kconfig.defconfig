@@ -1,0 +1,28 @@
+if BOARD_CSK6_DOOI_ROBOT_V1
+
+config BOARD
+   default "csk6_dooi_robot_v1"
+
+DT_CHOSEN_Z_PSRAM := zephyr,psram
+
+config PSRAM_SIZE
+	hex
+	default "$(dt_chosen_reg_size_hex,$(DT_CHOSEN_Z_PSRAM))"
+
+if WIFI
+
+choice CSK_WIFI_OFFLOAD_MODULE
+   prompt "WiFi Offload Module"
+   default CSK_WIFI_ESP32C3
+
+	config CSK_WIFI_ESP32C3
+      bool "ESP32C3"
+
+	config CSK_WIFI_XR819S
+      bool "XR819S"
+
+endchoice
+
+endif # WIFI
+
+endif # BOARD_CSK6_DOOI_ROBOT_V1

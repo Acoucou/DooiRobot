@@ -1,0 +1,51 @@
+/*
+ * Copyright (c) 2019 Marc Reilly
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+#ifndef DUAL_GC9A01_DISPLAY_DRIVER_H__
+#define DUAL_GC9A01_DISPLAY_DRIVER_H__
+
+#include <zephyr/drivers/display.h>
+
+#define GC9A01_CMD_NOP				0x00
+#define GC9A01_CMD_SWRESET    0x01
+#define GC9A01_CMD_RDDID			0x04
+#define GC9A01_CMD_RDDST			0x09
+#define GC9A01_CMD_SLPIN			0x10
+#define GC9A01_CMD_SLPOUT			0x11
+#define GC9A01_CMD_PTLON			0x12
+#define GC9A01_CMD_NORON			0x13
+#define GC9A01_CMD_INVOFF			0x20
+#define GC9A01_CMD_INVON			0x21
+#define GC9A01_CMD_DISPOFF		0x28
+#define GC9A01_CMD_DISPON			0x29
+#define GC9A01_CMD_CASET			0x2a
+#define GC9A01_CMD_RASET			0x2b
+#define GC9A01_CMD_RAMWR			0x2c
+#define GC9A01_CMD_PTLAR			0x30
+#define GC9A01_CMD_TEOFF			0x34
+#define GC9A01_CMD_TECCTRL		0x35
+#define GC9A01_CMD_MADCTL			0x36
+#define GC9A01_CMD_IDMOFF			0x38
+#define GC9A01_CMD_IDMON			0x39
+#define GC9A01_CMD_COLMOD			0x3a
+#define GC9A01_CMD_TECTRL	  	0xb4
+#define GC9A01_CMD_PORTRL     0xb5
+#define GC9A01_CMD_PORTRL     0xb5
+#define GC9A01_CMD_DISFUNCTRL 0xb6
+#define GC9A01_CMD_DSGATESEL  0xbf
+#define GC9A01_CMD_PWCTRL1		0xc1
+#define GC9A01_CMD_PWCTRL2		0xc3
+#define GC9A01_CMD_PWCTRL3		0xc4
+#define GC9A01_CMD_PWCTRL4		0xc9
+#define GC9A01_CMD_FRAMERATE	0xe8
+#define GC9A01_CMD_INVERSION	0xec                     
+#define GC9A01_CMD_INREGEN2   0xef
+#define GC9A01_CMD_GAM1SET		0xf0
+#define GC9A01_CMD_GAM2SET		0xf1
+#define GC9A01_CMD_GAM3SET		0xf2
+#define GC9A01_CMD_GAM4SET		0xf3
+#define GC9A01_CMD_INREGEN1		0xfe
+
+#endif /* DUAL_GC9A01_DISPLAY_DRIVER_H__ */ 

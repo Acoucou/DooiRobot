@@ -1,0 +1,63 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+SECTION_PROLOGUE(RES_VENUS_CP,,)
+{
+	KEEP(*(".venus_cp.text"));
+} GROUP_LINK_IN(RES_VENUS_CP)
+
+SECTION_PROLOGUE(RES_LITTLEFS,,)
+{
+	KEEP(*(".littlefs.text"));
+} GROUP_LINK_IN(RES_LITTLEFS)
+
+#if defined(CONFIG_CAPABILITY_SPD)
+SECTION_PROLOGUE(RES_SPD_BODY_DETECT,,)
+{
+	KEEP(*(".spd_body_detect.text"));
+} GROUP_LINK_IN(RES_SPD_BODY_DETECT)
+
+SECTION_PROLOGUE(RES_SPD_KEY_POINTS,,)
+{
+	KEEP(*(".spd_key_points.text"));
+} GROUP_LINK_IN(RES_SPD_KEY_POINTS)
+
+SECTION_PROLOGUE(RES_SPD_SIT_POSE,,)
+{
+	KEEP(*(".spd_sit_pose.text"));
+} GROUP_LINK_IN(RES_SPD_SIT_POSE)
+#endif
+
+#if defined(CONFIG_CAPABILITY_WAKEUP)
+
+SECTION_PROLOGUE(RES_WAKEUP_CAE_MLP,,)
+{
+	KEEP(*(".wakeup_cae_mlp.text"));
+} GROUP_LINK_IN(RES_WAKEUP_CAE_MLP)
+
+SECTION_PROLOGUE(RES_WAKEUP_ESR_MLP,,)
+{
+	KEEP(*(".wakeup_esr_mlp.text"));
+} GROUP_LINK_IN(RES_WAKEUP_ESR_MLP)
+
+SECTION_PROLOGUE(RES_WAKEUP_ESR_MAIN,,)
+{
+	KEEP(*(".wakeup_esr_main.text"));
+} GROUP_LINK_IN(RES_WAKEUP_ESR_MAIN)
+
+SECTION_PROLOGUE(RES_WAKEUP_ESR_CMDS,,)
+{
+	KEEP(*(".wakeup_esr_cmds.text"));
+} GROUP_LINK_IN(RES_WAKEUP_ESR_CMDS)
+
+SECTION_PROLOGUE(RES_WAKEUP_AI_WRAP_CONFIG,,)
+{
+	KEEP(*(".wakeup_ai_wrap_config.text"));
+} GROUP_LINK_IN(RES_WAKEUP_AI_WRAP_CONFIG)
+#endif
+
+#if defined(CONFIG_CAPABILITY_QRCODE)
+SECTION_PROLOGUE(RES_QRCODE_DETECT,,)
+{
+	KEEP(*(".qrcode_detect_res_thinker.text"));
+} GROUP_LINK_IN(RES_QRCODE_DETECT)
+#endif

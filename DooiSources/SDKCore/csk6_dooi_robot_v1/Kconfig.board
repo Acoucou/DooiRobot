@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config BOARD_CSK6_DOOI_ROBOT_V1
+   bool "csk6_dooi_robot_v1 Board"
+   depends on SOC_CSK6

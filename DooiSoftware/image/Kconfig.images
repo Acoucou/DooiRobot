@@ -1,0 +1,101 @@
+# SPDX-License-Identifier: Apache-2.0
+
+DT_CHOSEN_Z_FLASH_RES_CP_IMAGE := resource,cp
+DT_CHOSEN_Z_FLASH_RES_LITTLEFS_IMAGE := resource,littlefs
+DT_CHOSEN_Z_FLASH_RES_SPD_BODY_DETECT := resource,spd_body_detect
+DT_CHOSEN_Z_FLASH_RES_SPD_KEY_POINTS := resource,spd_key_points
+DT_CHOSEN_Z_FLASH_RES_SPD_SIT_POSE := resource,spd_sit_pose
+DT_CHOSEN_Z_FLASH_RES_WAKEUP_CAE_MLP := resource,wakeup_cae_mlp
+DT_CHOSEN_Z_FLASH_RES_WAKEUP_ESR_MLP := resource,wakeup_esr_mlp
+DT_CHOSEN_Z_FLASH_RES_WAKEUP_ESR_MAIN := resource,wakeup_esr_main
+DT_CHOSEN_Z_FLASH_RES_WAKEUP_ESR_CMDS := resource,wakeup_esr_cmds
+DT_CHOSEN_Z_FLASH_RES_WAKEUP_AI_WRAP_CONF := resource,wakeup_ai_wrap_conf
+DT_CHOSEN_Z_FLASH_RES_QRCODE_DETECT := resource,qrcode_detect
+
+config FLASH_RES_IMAGE_ADDRESS
+	hex "second core firmware space start address"
+	default "$(dt_chosen_reg_addr_hex,$(DT_CHOSEN_Z_FLASH_RES_CP_IMAGE))"
+
+config FLASH_RES_IMAGE_SIZE
+	hex "second core firmware space size"
+	default "$(dt_chosen_reg_size_hex,$(DT_CHOSEN_Z_FLASH_RES_CP_IMAGE))"
+
+config FLASH_RES_LITTLEFS_IMAGE_ADDRESS
+	hex "littlefs space start address"
+	default "$(dt_chosen_reg_addr_hex,$(DT_CHOSEN_Z_FLASH_RES_LITTLEFS_IMAGE))"
+
+config FLASH_RES_LITTLEFS_IMAGE_SIZE
+	hex "littlefs space size"
+	default "$(dt_chosen_reg_size_hex,$(DT_CHOSEN_Z_FLASH_RES_LITTLEFS_IMAGE))"
+
+config FLASH_RES_SPD_BODY_DETECT_ADDRESS
+	hex "algorithm resource data space start address"
+	default "$(dt_chosen_reg_addr_hex,$(DT_CHOSEN_Z_FLASH_RES_SPD_BODY_DETECT))"
+
+config FLASH_RES_SPD_BODY_DETECT_SIZE
+	hex "algorithm resource data space size"
+	default "$(dt_chosen_reg_size_hex,$(DT_CHOSEN_Z_FLASH_RES_SPD_BODY_DETECT))"
+
+config FLASH_RES_SPD_KEY_POINTS_ADDRESS
+	hex "algorithm resource data space start address"
+	default "$(dt_chosen_reg_addr_hex,$(DT_CHOSEN_Z_FLASH_RES_SPD_KEY_POINTS))"
+
+config FLASH_RES_SPD_KEY_POINTS_SIZE
+	hex "algorithm resource data space size"
+	default "$(dt_chosen_reg_size_hex,$(DT_CHOSEN_Z_FLASH_RES_SPD_KEY_POINTS))"
+
+config FLASH_RES_SPD_SIT_POSE_ADDRESS
+	hex "algorithm resource data space start address"
+	default "$(dt_chosen_reg_addr_hex,$(DT_CHOSEN_Z_FLASH_RES_SPD_SIT_POSE))"
+
+config FLASH_RES_SPD_SIT_POSE_SIZE
+	hex "algorithm resource data space size"
+	default "$(dt_chosen_reg_size_hex,$(DT_CHOSEN_Z_FLASH_RES_SPD_SIT_POSE))"
+
+config FLASH_RES_WAKEUP_CAE_MLP_ADDRESS
+	hex "Wakeup algorithm resource data space start address"
+	default "$(dt_chosen_reg_addr_hex,$(DT_CHOSEN_Z_FLASH_RES_WAKEUP_CAE_MLP))"
+
+config FLASH_RES_WAKEUP_CAE_MLP_SIZE
+	hex "Wakeup algorithm resource data space size"
+	default "$(dt_chosen_reg_size_hex,$(DT_CHOSEN_Z_FLASH_RES_WAKEUP_CAE_MLP))"
+
+config FLASH_RES_WAKEUP_ESR_MLP_ADDRESS
+	hex "Wakeup algorithm resource data space start address"
+	default "$(dt_chosen_reg_addr_hex,$(DT_CHOSEN_Z_FLASH_RES_WAKEUP_ESR_MLP))"
+
+config FLASH_RES_WAKEUP_ESR_MLP_SIZE
+	hex "Wakeup algorithm resource data space size"
+	default "$(dt_chosen_reg_size_hex,$(DT_CHOSEN_Z_FLASH_RES_WAKEUP_ESR_MLP))"
+
+config FLASH_RES_WAKEUP_ESR_MAIN_ADDRESS
+	hex "Wakeup algorithm resource data space start address"
+	default "$(dt_chosen_reg_addr_hex,$(DT_CHOSEN_Z_FLASH_RES_WAKEUP_ESR_MAIN))"
+
+config FLASH_RES_WAKEUP_ESR_MAIN_SIZE
+	hex "Wakeup algorithm resource data space size"
+	default "$(dt_chosen_reg_size_hex,$(DT_CHOSEN_Z_FLASH_RES_WAKEUP_ESR_MAIN))"
+
+config FLASH_RES_WAKEUP_ESR_CMDS_ADDRESS
+	hex "Wakeup algorithm resource data space start address"
+	default "$(dt_chosen_reg_addr_hex,$(DT_CHOSEN_Z_FLASH_RES_WAKEUP_ESR_CMDS))"
+
+config FLASH_RES_WAKEUP_ESR_CMDS_SIZE
+	hex "Wakeup algorithm resource data space size"
+	default "$(dt_chosen_reg_size_hex,$(DT_CHOSEN_Z_FLASH_RES_WAKEUP_ESR_CMDS))"
+
+config FLASH_RES_WAKEUP_AI_WRAP_CONF_ADDRESS
+	hex "Wakeup algorithm resource data space start address"
+	default "$(dt_chosen_reg_addr_hex,$(DT_CHOSEN_Z_FLASH_RES_WAKEUP_AI_WRAP_CONF))"
+
+config FLASH_RES_WAKEUP_AI_WRAP_CONF_SIZE
+	hex "Wakeup algorithm resource data space size"
+	default "$(dt_chosen_reg_size_hex,$(DT_CHOSEN_Z_FLASH_RES_WAKEUP_AI_WRAP_CONF))"
+
+config FLASH_RES_QRCODE_DETECT_ADDRESS
+	hex "algorithm resource data space start address"
+	default "$(dt_chosen_reg_addr_hex,$(DT_CHOSEN_Z_FLASH_RES_QRCODE_DETECT))"
+
+config FLASH_RES_QRCODE_DETECT_SIZE
+	hex "algorithm resource data space size"
+	default "$(dt_chosen_reg_size_hex,$(DT_CHOSEN_Z_FLASH_RES_QRCODE_DETECT))"

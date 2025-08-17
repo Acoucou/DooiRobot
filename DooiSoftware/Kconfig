@@ -1,0 +1,63 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config APPLICATION_PACK_IMAGES
+	bool "Package all algorithm resources, CP firmware and AP firmware into one image file"
+	default n
+
+config DRIVER_NON_BLOCK_INIT
+   bool "Driver Non-Block Init"
+   default y
+
+config WAKEUP_DEBUG
+   bool "wakeup debug enable"
+   default n
+
+config WDT_MGR
+   bool "wdt enable"
+   default n
+   select WATCHDOG
+   select WDT_CSK6
+
+config SNTP_SERVER1
+    string "SNTP Server"
+    default "ntp.aliyun.com"
+
+config SNTP_SERVER2
+    string "SNTP Server"
+    default "time1.cloud.tencent.com"
+
+config SNTP_SERVER3
+    string "SNTP Server"
+    default "ntp.tuna.tsinghua.edu.cn"
+
+config SNTP_SERVER4
+    string "SNTP Server"
+    default "ntp.ntsc.ac.cn"
+
+config SNTP_SERVER5
+    string "SNTP Server"
+    default "cn.ntp.org.cn"
+
+config HF_EXHIBITION
+    bool "FOR hefei Exhibition"
+    default n
+
+config UART_DISP_EN
+    bool "UART DISP ENABLE"
+    default n
+
+if APPLICATION_PACK_IMAGES
+
+	#custon linker
+	config HAVE_CUSTOM_LINKER_SCRIPT
+		default y
+
+	config CUSTOM_LINKER_SCRIPT
+		default "image/linker_flash_partitions.ld"
+
+	rsource "image/Kconfig.images"
+
+endif
+
+rsource "Kconfig.capability"
+source "Kconfig.zephyr"

@@ -1,0 +1,280 @@
+/*
+ * Copyright (c) 2021 listenai Intelligent Technology (anhui) Co., Ltd.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+ 
+/delete-node/ &storage_partition;
+
+/* 删除掉系统dts默认配置的参数 */
+/delete-node/ &psram_ap;
+/delete-node/ &psram_cp;
+/delete-node/ &psram_share;
+/delete-node/ &wifi_driver_storage;
+/delete-node/ &wifi_nvs_storage;
+
+/ {
+        chosen {
+                zephyr,code-partition = &ap_code_partition;
+                resource,cp = &cp_code_partition;
+                resource,littlefs = &littlefs_partition;
+                resource,wakeup_cae_mlp = &wakeup_cae_mlp_partition;
+                resource,wakeup_esr_mlp = &wakeup_esr_mlp_partition;
+                resource,wakeup_esr_main = &wakeup_esr_main_partition;
+                resource,wakeup_esr_cmds = &wakeup_esr_cmds_partition;
+                resource,wakeup_ai_wrap_conf = &wakeup_ai_wrap_conf_partition;
+                resource,qrcode_detect = &qrcode_detect_partition;
+                zephyr,display=&dual_gc9a01; 
+        };
+        aliases {
+                spk-pa-mute = &spk_pa_mute;
+
+                motor-ctrl = &motor_ctrl;
+                motor-ctrl2 = &motor_ctrl2;
+       
+                gpioa1 = &gpioa1;
+                gpioa2 = &gpioa2;
+                gpioa3 = &gpioa3;
+
+                gpiob7 = &gpiob7;
+
+                pwm1-servo = &pwm1_output;
+                pwm3-servo = &pwm3_output;
+
+                led0 = &led0;
+
+                socadc = &socadc;
+
+                sw0 = &user_button_0;
+                sw1 = &user_button_1;
+        };
+        gpio_keys {
+                compatible = "gpio-keys";
+                user_button_1: button_1 {
+                        gpios = <&gpioa 0x0 0x0>;
+                };
+        };
+        gpio,user {
+                compatible = "listenai,csk-gpio-user";
+                gpiob7: gpiob7 {
+                gpios = <&gpiob 0x7 0x0>;
+                label = "gpiob_7";
+                };
+                gpioa1: gpioa1 {
+                gpios = <&gpioa 0x1 0x0>;
+                label = "gpioa_1";
+                };
+                gpioa2: gpioa2 {
+                gpios = <&gpioa 0x2 0x0>;
+                label = "gpioa_2";
+                };
+                gpioa3: gpioa3 {
+                gpios = <&gpioa 0x3 0x0>;
+                label = "gpioa_0";
+                };
+        };
+        leds {
+                compatible = "gpio-leds";
+                spk_pa_mute: spk_pa_mute {
+                        gpios = <&exgpioc 2 GPIO_ACTIVE_HIGH>;
+                };
+                motor_ctrl: motor_ctrl{
+                        gpios = <&exgpiod 3 GPIO_ACTIVE_LOW>;
+                };
+                motor_ctrl2:motor_ctrl2{
+                        gpios = <&exgpiod 6 GPIO_ACTIVE_LOW>;
+                };
+
+                led0:led0{
+                        gpios = <&exgpioa 2 GPIO_ACTIVE_HIGH>;
+                };
+                socadc:socadc{
+                        gpios = <&exgpioc 1 GPIO_ACTIVE_HIGH>;
+                };
+        };
+
+        fstab {
+		compatible = "zephyr,fstab";
+		lfs1: lfs1 {
+			compatible = "zephyr,fstab,littlefs";
+			mount-point = "/lfs";
+			partition = <&littlefs_partition>;
+			automount ;
+			read-size = <16>;
+			prog-size = <16>;
+			cache-size = <64>;
+			lookahead-size = <32>;
+			block-cycles = <4096>;
+		};
+	};
+        zephyr,user {
+                /* this use ch2*/
+                io-channels = <&exadc 2>;  
+        };
+};
+
+
+&gptchannel1 {
+    compatible = "listenai,csk-pwm";
+
+    status = "okay";
+    channel_mode = <1>;  /* 0: timer; 1:pwm */
+
+    clock-prescaler = <64>;
+    pinctrl-0 = <&pinctrl_pwm1_default>;
+    pinctrl-names = "default";
+};
+
+&gptchannel3 {
+    compatible = "listenai,csk-pwm";
+
+    status = "okay";
+    channel_mode = <1>;  /* 0: timer; 1:pwm */
+
+    clock-prescaler = <64>;
+    pinctrl-0 = <&pinctrl_pwm3_default>;
+    pinctrl-names = "default";
+};
+
+&pinctrl{
+    pinctrl_pwm1_default: pwm1_default {
+        pinctrls = <GPT_PWM_1_GPIOA_01>;
+    };
+
+
+    pinctrl_pwm3_default: pwm3_default {
+        pinctrls = <GPT_PWM_3_GPIOA_03>;
+    };
+};
+
+
+/{
+    pwms {
+        compatible = "pwm-leds";
+
+        pwm1_output: pwm1_output {
+            pwms = <&gptchannel1 1 PWM_MSEC(20) PWM_POLARITY_NORMAL>;
+        };
+
+        pwm3_output: pwm3_output {
+            pwms = <&gptchannel3 3 PWM_MSEC(20) PWM_POLARITY_NORMAL>;
+        };
+    };
+};
+
+&flash0 {
+        /*
+        * For more information, see:
+        * http: //docs.zephyrproject.org/latest/guides/dts/index.html#flash-partitions
+        */
+        reg = <0x18000000 DT_SIZE_M(16)>;
+        write-block-size = <4>;
+        partitions {
+                compatible = "fixed-partitions";
+                #address-cells = <1>;
+                #size-cells = <1>;
+                ap_code_partition: partition@0 {
+                        label = "ap_code";
+                        reg = <0x00000 0x400000>;
+                };
+
+                cp_code_partition: partition@400000 {
+                        label = "cp_code";
+                        reg = <0x400000 0x100000>;
+                };
+
+                littlefs_partition: partition@500000 {
+                        label = "littlefs_partition";
+                        reg = < 0x500000 0x100000 >;
+                };        
+                wakeup_cae_mlp_partition: partition@600000 {
+                        label = "wakeup_cae_mlp_partition";
+                        reg = < 0x600000 0x200000 >;
+                };
+                wakeup_esr_mlp_partition: partition@800000 {
+                        label = "wakeup_esr_mlp_partition";
+                        reg = < 0x800000 0xDE800 >;
+                };
+                wakeup_esr_main_partition: partition@A00000 {
+                        label = "wakeup_esr_main_partition";
+                        reg = < 0xA00000 0x10000 >;
+                };
+                wakeup_esr_cmds_partition: partition@A10000 {
+                        label = "wakeup_esr_cmds_partition";
+                        reg = < 0xA10000 0x10000 >;
+                };
+                wakeup_ai_wrap_conf_partition: partition@A20000 {
+                        label = "wakeup_ai_wrap_conf_partition";
+                        reg = < 0xA20000 0x1000 >;
+                };
+
+                storage_partition: partition@A30000 {
+                        label = "storage";
+                        reg = < 0xA30000 0x5000 >;
+                };
+
+                qrcode_detect_partition: partition@A35000 {
+                        label = "qrcode_detect_partition";
+                        reg = < 0xA35000 0xc0000 >;
+                };
+                user_nvs_storage: partition@AF5000{
+                        reg = <0xAF5000 0x4000>;
+                };
+                /* wifi_nvs_storage: 64Kb */
+                wifi_nvs_storage: partition@FED000 {
+                    reg = <0xFED000 0x10000>;
+                };
+                /* lisa_nvs_storage: 8Kb */
+                lisa_nvs_storage: partition@FFD000 {
+                    reg = <0xFFD000 0x2000>;
+                };
+
+        };
+};
+
+&psram0{
+        compatible = "listenai,csk6-psram";
+        reg = <0x30000000 0x800000>;
+        #label = "psram0";
+        #address-cells = <0x1>;
+        #size-cells = <0x1>;
+        psram_cp: psram_cp@30000000 {
+                compatible = "listenai,csk6-psram-partition";
+                reg = <0x30000000 0x410000>;
+                status = "okay";
+        };
+        psram_ap: psram_ap@30410000 {
+                compatible = "zephyr,memory-region",
+                             "listenai,csk6-psram-partition";
+                reg = <0x30410000 0x3F0000>;
+                status = "okay";
+                zephyr,memory-region = "PSRAMAP";
+        };
+};
+
+&sram0{
+        reg = < 0x80000 0x40000 >;
+};
+
+&zephyr_udc0 {
+	cdc_acm_uart0 {
+		compatible = "zephyr,cdc-acm-uart";
+	};
+};
+
+&uart1 {
+	pinctrl-0 = <&pinctrl_uart1_rx_default &pinctrl_uart1_tx_default>;
+	pinctrl-names = "default";
+	current-speed = <9600>;
+	status = "okay";
+};
+
+&pinctrl {
+	pinctrl_uart1_rx_default: uart1_rx_default{
+		pinctrls = <UART1_RXD_GPIOA_01>;              //rx pin
+	};
+
+	pinctrl_uart1_tx_default: uart1_tx_default{
+		pinctrls = <UART1_TXD_GPIOA_00>;              //tx pin
+	};
+};

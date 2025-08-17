@@ -1,0 +1,21 @@
+identifier: csk6_dooi_robot_v1
+name: CSK 6011A Dooi Robot
+type: mcu
+arch: arm
+toolchain:
+  - zephyr
+  - gnuarmemb
+  - xtools
+supported:
+  - gpio
+  - uart
+  - ipm
+  - wifi
+  - csk_wifi
+  - usb_device
+  - pwm
+  - dma
+  - nvs
+
+ram: 320
+flash: 16000

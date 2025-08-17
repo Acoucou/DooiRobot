@@ -1,0 +1,5 @@
+zephyr_library_amend()
+
+zephyr_library_sources_ifdef(CONFIG_DISPLAY_CSK6_LCD display_csk6_lcd.c)
+zephyr_library_sources_ifdef(CONFIG_ST7789V_CSK6 display_st7789v_csk6.c)
+zephyr_library_sources_ifdef(CONFIG_GC9A01_CSK6 display_dual_gc9a01_csk6.c)

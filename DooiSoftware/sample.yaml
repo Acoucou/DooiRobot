@@ -1,0 +1,7 @@
+sample:
+  name: LLM_pic
+tests:
+  apps.LLM_pic:
+    build_only: true
+    platform_allow:
+      - csk6_duomotai_devkit

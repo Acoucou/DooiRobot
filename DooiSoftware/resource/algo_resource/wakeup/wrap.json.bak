@@ -1,0 +1,64 @@
+{
+	"aiwrap": {
+		"wrap":{
+			"dev":"4002",
+			"adc":0,
+			"trans":1,
+			"param":[{
+					"key":"wakesoffset",
+					"val":160
+				},{
+					"key":"wakeeoffset",
+					"val":-160
+					}
+				]
+			},
+			"cae":{
+				"dist":30,
+				"bits":16,
+				"chns":{
+					"mic":2,
+					"ref":2,
+					"out":7
+				},
+				"wkmask":3,
+				"param":[{
+						"key":"mode",
+						"val":"0"
+					},{
+						"key":"textdep",
+						"val":1
+					}, {
+						"key": "24580",
+						"val": 30
+					}, {
+						"key": "16386",
+						"val": 600
+					}]
+			},
+			"esr":{
+				"param":[{
+						"key":"prewstat",
+						"val":5
+					},{
+						"key":"prewthr",
+						"val":600
+					},{
+						"key":"mode",
+						"val":1
+					},{
+						"key":"model",
+						"val":0
+					}
+				]
+			}
+	},
+	"kwsconf": {
+		"dialect": [ {
+			"name": "mandarin",
+			"main": [0, 2],
+			"mlcs": [1, 170],
+			"quit": [-1]
+		}]
+	}
+}

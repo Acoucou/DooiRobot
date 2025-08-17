@@ -1,0 +1,33 @@
+# GC9A01 display driver configuration options
+
+# Copyright (c) 2024 Your Name <your.email@example.com>
+# SPDX-License-Identifier: Apache-2.0
+
+menuconfig DUAL_GC9A01_CSK6
+    bool "Dual GC9A01 display driver"
+    depends on SPI
+    select MUTEX
+    select DISPLAY_CSK6_LCD
+    help
+      Enable driver for GC9A01 display driver.
+
+config GC9A01_CSK6_DMA_CHANNEL
+	int "GC9A01_CSK6_DMA_CHANNEL"
+	default 0
+
+config GC9A01_CSK6_ROTATE_90
+	bool "GC9A01_CSK6_ROTATE_90"
+	default n
+
+
+choice GC9A01_PIXEL_FORMAT
+    prompt "Color pixel format"
+    default GC9A01_RGB565
+    depends on GC9A01_CSK6
+    help
+      Specify the color pixel format for the GC9A01 display controller.
+
+config GC9A01_RGB565
+    bool "RGB565"
+
+endchoice
