@@ -19,6 +19,7 @@
 #include "ls_cmd.h"
 #include "hw_info.h"
 #include "csk_malloc.h"
+#include "app_connect.h"
 
 LOG_MODULE_REGISTER(ble_cnn, LOG_LEVEL_INF);
 typedef struct {
@@ -109,26 +110,7 @@ static void clean_json_string(char *str)
 	}
 	*dst = '\0';
 }
-typedef struct {
-	char chip_id[DEVICE_CHIP_ID_LENGTH];
-	char product_id[DEVICE_PRODUCT_ID_LENGTH];
-	char secret_id[DEVICE_SECRET_ID_LENGTH];
-} device_info_t;
-static int device_info_read(device_info_t *inf)
-{
-	chip_id_read(inf->chip_id, sizeof(inf->chip_id));
-	if (0 > ls_cmd_nvs_get_value(LLM_CHAT_PRODUCT_ID, inf->product_id, sizeof(inf->product_id))) {
-		snprintf(inf->product_id, sizeof(inf->product_id), "%s", CONFIG_PRODUCT_ID_STRING);
-		LOG_WRN("Read product id failed,use default:%s", CONFIG_PRODUCT_ID_STRING);
-	}
 
-	if (0 > ls_cmd_nvs_get_value(LLM_CHAT_SECRET_ID, inf->secret_id, sizeof(inf->secret_id))) {
-		snprintf(inf->secret_id, sizeof(inf->secret_id), "%s", CONFIG_SECRET_ID_STRING);
-		LOG_WRN("Read secret id failed,use default:%s", CONFIG_SECRET_ID_STRING);
-	}
-
-	return 0;
-}
 static char ssid_buffer[64];
 static char password_buffer[64];
 static ssize_t write_wifi_data(struct bt_conn *conn, const struct bt_gatt_attr *attr, const void *buf, uint16_t len,

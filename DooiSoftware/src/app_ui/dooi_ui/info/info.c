@@ -49,19 +49,17 @@ static void settings_work_handler(struct k_work *work)
         info_settings.ble_enabled = !info_settings.ble_enabled;
         printk("Switch BLE: %d\n", info_settings.ble_enabled);
 
-        if (info_settings.ble_enabled) {
-            ble_start_adv();
-        } else {
-            ble_stop_adv();
-        }
-
         if(info_settings.ble_enabled)
         {
+            ble_start_adv();
             lv_obj_add_state(info_settings.switch_ble, LV_STATE_CHECKED);
+            lv_obj_clear_state(info_settings.switch_ble, LV_STATE_DISABLED); // 清除禁用状态
         }
         else
         {
-            lv_obj_add_state(info_settings.switch_ble, LV_STATE_DISABLED);
+            ble_stop_adv();
+            lv_obj_add_state(info_settings.switch_ble, LV_STATE_DISABLED); // 添加禁用状态
+            lv_obj_clear_state(info_settings.switch_ble, LV_STATE_CHECKED); // 清除选中状态
         }
 
         break;
@@ -73,20 +71,16 @@ static void settings_work_handler(struct k_work *work)
         if (info_settings.continuous_mode) {
             app_player_start(TONE_PLAYER, "/lfs/102_conversation_open.mp3");
             app_chat_session_set_interactive_mode(SESSION_VOICE_INTER_MODE_CONTINUE);
+
+            lv_obj_add_state(info_settings.switch_ble, LV_STATE_CHECKED);
+            lv_obj_clear_state(info_settings.switch_ble, LV_STATE_DISABLED); // 清除禁用状态
         } else {
             app_player_start(TONE_PLAYER, "/lfs/103_conversation_close.mp3");
             app_chat_session_set_interactive_mode(SESSION_VOICE_INTER_MODE_ONESHOT);
-        }
 
-        if(info_settings.continuous_mode)
-        {
-            lv_obj_add_state(info_settings.switch_conv, LV_STATE_CHECKED);
+            lv_obj_add_state(info_settings.switch_ble, LV_STATE_DISABLED); // 添加禁用状态
+            lv_obj_clear_state(info_settings.switch_ble, LV_STATE_CHECKED); // 清除选中状态
         }
-        else
-        {
-            lv_obj_add_state(info_settings.switch_conv, LV_STATE_DISABLED);
-        }
-
         break;
 
     default:

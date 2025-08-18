@@ -1,45 +1,5 @@
-
 # DooiRobot
 
-## 优化主线
-
-> 动作序列设计
-
-> 表情（眼睛/可爱动图doro 猫娘）
-
-> 舵机控制（角度/速度）
-
-> 设备信息与设置页添加（DooiRobot soc version author  ip 蓝牙控制 连续对话控制）
-
-> 音乐频谱（颜色设计）
-
-> 静态音频交互设计
-
-> 动图和语音识别结果页面
-
-## 平台
-
-> * aiui
-
-> https://aiui.xfyun.cn/user/login?pageFrom=https%3A%2F%2Faiui.xfyun.cn%2Fapp
-
-> * 聆思
-
-> https://platform.listenai.com/application
-
-> * 唤醒词替换
-
-> https://tool.listenai.com/audio-custom/products/
-
-> * 替换应答语
-
-> https://docs2.listenai.com/x/txcGbh4g-
-
-> * lisa zep exec mklfs apps\LLM_pic\resource\tone\ littlefs.bin 0x100000
-
-> * 应答音频
-
-> https://www.iflyos.cn/tts-file
 
 ## DooiRobot功能描述
 

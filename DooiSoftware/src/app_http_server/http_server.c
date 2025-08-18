@@ -20,10 +20,20 @@
 #include "ls_cmd.h"
 #include "app_connect.h"
 #include <gcs_wakeup_service.h>
-
+#include "app_camera.h"
+#include "tiny_jpeg.h"
 #include <zephyr/net/dns_sd.h>
 
 LOG_MODULE_REGISTER(http_server, LOG_LEVEL_DBG);
+
+int client = 0;
+
+static bool web_frame_start = false;
+struct jpeg_write_ctx {
+	uint8_t *buf;
+	uint32_t total_size;
+	uint32_t wrote;
+};
 
 static const uint16_t http_port = htons(8080);
 /* 静态声明HTTP服务记录 */
@@ -188,19 +198,19 @@ static void handle_device_commands(cJSON *json, cJSON *resp)
     /* ===== 摄像头 ===== */
     cJSON *camera = cJSON_GetObjectItem(json, "camera");
     if (camera) {
-        // extern void camera_start(void);
-        // extern void camera_stop(void);
-        // if (cJSON_GetObjectItem(camera, "enable")) {
-        //     camera_start();
-        //     if (resp) { cJSON_AddStringToObject(resp, "camera", "enabled"); }
-        // }
-        // if (cJSON_GetObjectItem(camera, "disable")) {
-        //     camera_stop();
-        //     if (resp) { cJSON_AddStringToObject(resp, "camera", "disabled"); }
-        // }
-        // if (resp && !cJSON_HasObjectItem(resp, "status")) {
-        //     cJSON_AddStringToObject(resp, "status", "ok");
-        // }
+        if (cJSON_GetObjectItem(camera, "enable")) {
+            camera_start();
+            if (resp) { cJSON_AddStringToObject(resp, "camera", "enabled"); }
+            web_frame_start = true;
+        }
+        if (cJSON_GetObjectItem(camera, "disable")) {
+            camera_stop();
+            if (resp) { cJSON_AddStringToObject(resp, "camera", "disabled"); }
+            web_frame_start = false;
+        }
+        if (resp && !cJSON_HasObjectItem(resp, "status")) {
+            cJSON_AddStringToObject(resp, "status", "ok");
+        }
     }
 
     /* ===== 舵机偏移 / 角度（原样） ===== */
@@ -315,41 +325,145 @@ static void handle_device_commands(cJSON *json, cJSON *resp)
     }
 }
 
-
-static void handle_stream(int sock)
+static void rgb565_to_rgb888_le(uint16_t *src, uint8_t *dst, size_t pixel_count)
 {
-    const char *hdr =
-        "HTTP/1.1 200 OK\r\n"
-        "Cache-Control: no-store, no-cache, must-revalidate\r\n"
-        "Pragma: no-cache\r\n"
-        "Connection: close\r\n"
-        "Content-Type: multipart/x-mixed-replace; boundary=frame\r\n\r\n";
-    zsock_send(sock, hdr, strlen(hdr), 0);
+	for (size_t i = 0; i < pixel_count; i++) {
+		uint16_t pixel = src[i];
+		uint8_t r = (pixel >> 11) & 0x1F;
+		uint8_t g = (pixel >> 5) & 0x3F;
+		uint8_t b = pixel & 0x1F;
 
-    // static uint8_t tmp[MAX_JPEG_SIZE];
-
-    // for (;;) {
-    //     size_t n = get_latest_jpeg(tmp, sizeof(tmp));
-    //     if (n == 0) {
-    //         // 还没有帧，稍等
-    //         usleep(1000 * 100); // 100ms
-    //         continue;
-    //     }
-
-    //     char part_hdr[128];
-    //     int hlen = snprintf(part_hdr, sizeof(part_hdr),
-    //                         "--frame\r\n"
-    //                         "Content-Type: image/jpeg\r\n"
-    //                         "Content-Length: %zu\r\n\r\n", n);
-
-    //     if (zsock_send(sock, part_hdr, hlen, 0) <= 0) break;
-    //     if (zsock_send(sock, tmp, n, 0) <= 0) break;
-    //     if (zsock_send(sock, "\r\n", 2, 0) <= 0) break;
-
-    //     k_msleep(33);
-    // }
+		dst[i * 3 + 0] = (r * 255) / 31;
+		dst[i * 3 + 1] = (g * 255) / 63;
+		dst[i * 3 + 2] = (b * 255) / 31;
+	}
 }
 
+static void jpeg_write(void *context, void *data, int size)
+{
+	struct jpeg_write_ctx *ctx = (struct jpeg_write_ctx *)context;
+	if (ctx == NULL) {
+		return;
+	}
+
+	uint32_t can_write = ctx->total_size - ctx->wrote;
+	can_write = can_write >= size ? size : can_write;
+
+	memcpy(ctx->buf + ctx->wrote, data, can_write);
+
+	ctx->wrote += can_write;
+}
+
+/**
+ * @note the picture must be formatted as rgb565
+ */
+static int send_frame(void *pic, uint32_t w, uint32_t h)
+{
+	uint8_t *rgb888_buf;
+	uint32_t rgb888_buf_size;
+	uint8_t *jpeg_buf;
+	uint32_t jpeg_buf_size;
+	int err;
+
+	rgb888_buf_size = w * h * 3;
+	jpeg_buf_size = rgb888_buf_size / 5;
+
+	/* convert picture to rgb888 */
+	rgb888_buf = csk_malloc(rgb888_buf_size);
+	if (rgb888_buf == NULL) {
+		LOG_ERR("no more mem to alloc rgb888 buffer, size:%d", rgb888_buf_size);
+		return -ENOMEM;
+	}
+	jpeg_buf = csk_malloc(jpeg_buf_size);
+	if (jpeg_buf == NULL) {
+		LOG_ERR("no more mem to alloc jpeg_buf buffer, size:%d", rgb888_buf_size);
+		csk_free(rgb888_buf);
+		return -ENOMEM;
+	}
+	rgb565_to_rgb888_le(pic, rgb888_buf, w * h);
+
+	/* compress the picture to jpg format */
+	struct jpeg_write_ctx jpeg_write_ctx = {
+		.buf = jpeg_buf,
+		.total_size = jpeg_buf_size,
+		.wrote = 0,
+	};
+
+	err = tje_encode_with_func(jpeg_write, &jpeg_write_ctx, 1, w, h, 3, rgb888_buf);
+	if (err == 0) {
+		LOG_ERR("jpeg compression failed");
+        csk_free(rgb888_buf);
+        csk_free(jpeg_buf);
+		return -EIO;
+	} else {
+		LOG_INF("jpeg compression done, size:%d/%d", jpeg_write_ctx.wrote, rgb888_buf_size);
+	}
+	/* rgb888_buf no longer needs to be used */
+	csk_free(rgb888_buf);
+
+    char part_hdr[128] = {0};
+    int hlen = snprintf(part_hdr, sizeof(part_hdr),
+                        "--frame\r\n"
+                        "Content-Type: image/jpeg\r\n"
+                        "Content-Length: %zu\r\n\r\n", jpeg_write_ctx.wrote);
+
+    zsock_send(client, part_hdr, hlen, 0);
+
+    int body_len = jpeg_write_ctx.wrote;
+    int sent = 0;
+    while (sent < body_len) {
+        int ret = zsock_send(client, jpeg_write_ctx.buf, body_len - sent, 0);
+        if (ret <= 0) break;
+        sent += ret;
+    }
+
+    zsock_send(client, "\r\n", 2, 0);
+
+	csk_free(jpeg_buf);
+
+	return err;
+}
+
+static void camera_thread(void *p1, void *p2, void *p3)
+{
+	struct video_buffer *vbuf;
+    int w, h, ret;
+
+	while (1) 
+    {
+        if(!web_frame_start)
+        {
+		    k_msleep(10000);
+            continue;
+        }
+
+        ret = app_camera_vbuf_capture(&vbuf, &w, &h);
+        if (ret) {
+            LOG_INF("Camera capture failed: %d\n", ret);
+            continue;
+        }
+
+        send_frame(vbuf, 240, 240);
+
+        app_camera_vbuf_unref(vbuf);   // 释放视频缓冲区
+
+		k_msleep(200);
+	}
+}
+
+static void handle_video_stream(int sock)
+{
+    // 设置视频流头
+    const char *hdr = "HTTP/1.1 200 OK\r\n"
+                      "Content-Type: multipart/x-mixed-replace; boundary=frame\r\n"
+                      "Connection: keep-alive\r\n\r\n";
+    
+    if (zsock_send(sock, hdr, strlen(hdr), 0) < 0) {
+        LOG_ERR("Failed to send stream header");
+        zsock_close(sock);
+        return;
+    }
+}
 
 /* 客户端处理线程 */
 static void client_handler(int sock)
@@ -378,7 +492,9 @@ static void client_handler(int sock)
         send_response(sock, 200, html_content);
     }
     else if (strcmp(method, "GET") == 0 && strcmp(path, "/stream") == 0) {
-        handle_stream(sock);
+        // 视频流请求处理
+        handle_video_stream(sock);
+        return; // 保持连接打开
     }
     else if (strcmp(method, "POST") == 0) {
         char *json_start = strstr(buf, "\r\n\r\n");
@@ -505,7 +621,7 @@ static void http_server_thread(void *p1, void *p2, void *p3)
     LOG_INF("HTTP server running on port %d", HTTP_PORT);
 
     while (1) {
-        int client = zsock_accept(sock, NULL, NULL);
+        client = zsock_accept(sock, NULL, NULL);
         if (client >= 0) {
             client_handler(client);
         }
@@ -549,3 +665,6 @@ static int http_server_sys_init(void)
 }
 
 SYS_INIT(http_server_sys_init, APPLICATION, CONFIG_APPLICATION_INIT_PRIORITY);
+
+// K_THREAD_DEFINE(camera_thread_id, 10240, camera_thread, NULL, NULL, NULL,
+// 		10, 0, 0);
