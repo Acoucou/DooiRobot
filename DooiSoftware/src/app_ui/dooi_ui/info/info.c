@@ -7,7 +7,7 @@
 #include "player_manager.h"
 #include <zephyr/net/socket.h>
 
-#define VERSION_INFO_X "1.0"
+LV_FONT_DECLARE(lv_font_notosans_cs_medium_14);
 
 typedef struct {
     lv_obj_t *left_container;
@@ -141,11 +141,12 @@ static int info_settings_load() {
 
     // 名称
     lv_obj_t *name = lv_label_create(info_settings.left_container);
-    lv_label_set_text_fmt(name, "DooiRobot");
+    lv_label_set_text_fmt(name, PROJECT_NAME);
 
     // 作者信息
     lv_obj_t *label_author = lv_label_create(info_settings.left_container);
-    lv_label_set_text_fmt(label_author, "coucou & matchstick");
+    lv_obj_set_style_text_font(label_author, &lv_font_notosans_cs_medium_14, LV_PART_MAIN);
+    lv_label_set_text_fmt(label_author, AUTHOR);
 
     // 版本信息
     lv_obj_t *label_version = lv_label_create(info_settings.left_container);

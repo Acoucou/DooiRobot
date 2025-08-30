@@ -101,7 +101,7 @@ void set_dev_text(char *pro, char *sec)
 static void handle_device_commands(cJSON *json, cJSON *resp)
 {
     static uint8_t clock_mode = 0;
-    static uint8_t eye_mode = 0, eye = 1;
+    static uint8_t eye_mode = 0, eye = 0;
 
     /* ===== LED 控制（原样） ===== */
     cJSON *led = cJSON_GetObjectItem(json, "led");
@@ -251,7 +251,7 @@ static void handle_device_commands(cJSON *json, cJSON *resp)
             screen_type_t screen_type = (screen_type_t)type->valueint;
             if (screen_type >= SCREEN_DIGITAL_CLOCK && screen_type < SCREEN_COUNT) {
                 if(screen_type == SCREEN_DIGITAL_CLOCK){ clock_mode = !clock_mode; digital_clock_mode_set(clock_mode); }
-                if(screen_type == SCREEN_EYES){ eye = !eye; eye_selete(eye); }
+                if(screen_type == SCREEN_EYES){ eye++; if(eye>=17) eye_emotion_selete(eye); }
                 if(screen_type == SCREEN_EMOJI_GIF){ eye_mode++; if(eye_mode>8) eye_mode=0; switch_gif(eye_mode); }
                 screen_set_current(screen_type);
                 if (resp) { cJSON_AddStringToObject(resp, "status", "ok"); }

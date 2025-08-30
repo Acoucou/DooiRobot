@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <lvgl.h>
 #include "key.h"
+#include "dooi_ui.h"
 
 /* 显示设备枚举 */
 typedef enum {
@@ -120,7 +121,7 @@ void screen_load(screen_type_t screen_type);
 void screen_update(void);
 
 void digital_clock_mode_set(int mode);
-void eye_selete(int eye);
+void eye_emotion_selete(int eye);
 void switch_gif(int animation);
 
 void camera_func_set(camera_func_t func);

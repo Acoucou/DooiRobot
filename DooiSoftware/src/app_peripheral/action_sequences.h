@@ -31,7 +31,7 @@ typedef struct {
         struct { uint16_t period_ms; bool symmetric; } led_rainbow;
         struct { servo_select_t servo; uint8_t angle; } servo_move;
         struct { int16_t left_speed, right_speed; uint16_t duration; } motor_control;
-        struct { gif_animation_type_t animation; } expression;
+        struct { uint16_t animation; } expression;
         struct { uint16_t delay_ms; } delay;
     } params;
 } action_cmd_t;

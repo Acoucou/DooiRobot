@@ -104,7 +104,8 @@ void screen_sub_load()
 		emoji_gif_change();
 		break;
 	case SCREEN_EYES:
-		eyes_change();
+		// eyes_change();
+		break;
 	case SCREEN_CAMERA:
 		camera_func_change();
 		break;

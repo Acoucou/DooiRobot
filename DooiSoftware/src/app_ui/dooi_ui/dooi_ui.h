@@ -1,18 +1,10 @@
-// #ifndef DOOI_UI_H
-// #define DOOI_UI_H
+#ifndef DOOI_UI_H
+#define DOOI_UI_H
 
-// /* digital clock */
-// void create_digital_ui();
+#define USE_EYE_ENMOTION 1
 
+#define VERSION_INFO_X "1.1"
+#define AUTHOR         "coucou & 火柴棍"
+#define PROJECT_NAME   "DooiRobot"
 
-// /* emoji gif */
-// void show_emoji_screen();
-
-// /* music ui */
-// void show_music_spectrum();
-
-// /* uncanny eyes */
-// void eyes_screen_init();
-// void eyes_screen_show();
-
-// #endif // DOOI_UI_H
+#endif // DOOI_UI_H
