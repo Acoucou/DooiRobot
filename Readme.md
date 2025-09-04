@@ -1,80 +1,84 @@
+
 # DooiRobot
 
+## 概述
 
-## DooiRobot功能描述
+该项目由doly魔改而来，3D模型做了适配，硬件以及软件为自制，采用聆思的CSK6；
 
-1、语音交互功能
+请用 “嘿、dooi” 唤醒我
 
-支持语音控制，包括对话、音乐、物体识别、移动等。
+当前支持功能如下：
 
-支持单轮对话和连续对话
+1、单轮多轮对话，打断唤醒
 
-支持情景响应，做出情景响应动作
+2、支持情绪理解，多种情感反馈（眼睛、led、舵机、电机的结合）
 
-2、触摸交互功能
+3、支持物体识别、拍照等
 
-信息页面
+4、支持音乐播放
 
-触发方式：长按右键进入/退出，信息页面（眼睛显示页面不支持）；
+5、支持蓝牙配网，局域网web控制
 
-功能：包含信息展示，蓝牙控制，对话模式控制（左键单击进行开关；右键切换控制对象）
+6、
 
-页面选择
+- [视频演示]()
+- 
 
-触发方式：长按左键进入/退出，页面选择（眼睛显示页面不支持）；
+## 固件烧录
 
-功能：进行页面切换（左键确认进入该页面；右键切换页面）
+1、[下载烧录软件](https://docs2.listenai.com/zz/6941.exe?shortId=oo2_KzYFd)
 
-眼睛页面
+2、将bin固件拖至软件
 
-交互响应（单击左键或右键触发动作1； 第三次单击触发动作2； 双击触发动作3 ； 长按触发动作4）
+![1756568140074](image/Readme/1756568140074.png)
 
-音乐页
+![1756568198922](image/Readme/1756568198922.png)
 
-双击控制下一首、上一首
+3、点击烧录后，立刻点击开发版的boot按键，开始烧录
 
-单击控制音量大/小
+## 软件环境搭建
 
-摄像头页
+1、安装lisa环境及获取SDK：[参考文档](https://docs2.listenai.com/x/xfI6rkDCKmW)
 
-单击拍照/取消拍照
+2、获取项目
 
-双击物体识别
+```
+cd /duomotai_ap/apps
+git clone https://github.com/Acoucou/DooiRobot.git
+```
 
-招财猫页
+最终目录如下图，没有git也可以直接将下载下来的项目放置于apps目录下（主要是方便脚本执行）
 
-单击（考虑切换招财猫样式）
+![1756567430413](image/Readme/1756567430413.png)
 
-时钟页面
+3、执行拷贝脚本，拷贝文件到SDK
 
-番茄钟模式下：单击（+-5分钟计数）；双击复位计数
+```
+cd DooiRobot/DooiSources/SDKCore
+./copy_shell.bat  			// 执行脚本
+```
 
-3、网页控制功能
+4、编译程序
 
-地址：http://dooi.local/
+```
+cd duomotai_ap
+lisa zep build -b csk6_dooi_robot_v1 .\apps\DooiRobot\DooiSoftware -p
+```
 
-功能：支持驱动控制
+5、烧录
 
-4、支持小程序蓝牙配网
+```
+lisa zep exec cskburn -s \\.\COM6 -C 6 -b 1500000 0x000000 .\build\zephyr\zephyr.bin  
+```
 
-5、页面初始状态
+## 平台
 
-眼睛页
+[aiui](https://aiui.xfyun.cn/user/login?pageFrom=https%3A%2F%2Faiui.xfyun.cn%2Fapp)
 
-默认180度&灯灭；首次唤醒（舵机90*、led灯呼吸）
+[聆思后台](https://platform.listenai.com/application)
 
-音乐页
+[唤醒词替换文档](https://tool.listenai.com/audio-custom/products/)
 
-进入音乐页时默认 舵机90* + 彩虹灯；
+[替换应答语](https://docs2.listenai.com/x/txcGbh4g-) ： lisa zep exec mklfs apps\LLM_pic\resource\tone\ littlefs.bin 0x100000
 
-如果意外切到其他页面，则恢复页面且默认状态
-
-招财猫页
-
-左舵机180*，右舵机90*，灯灭；
-
-摄像头页
-
-舵机 135*，灯灭；
-
-时钟页面
+[应答音频合成](https://www.iflyos.cn/tts-file)

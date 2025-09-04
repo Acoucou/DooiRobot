@@ -54,6 +54,10 @@ static screen_interface_t *screen_interfaces[SCREEN_COUNT] =
 	[SCREEN_WAKEUP_ACK] = &wakeup_ack_screen_interface,
 };
 
+void screen_disp_mode_set(uint8_t mode)
+{
+	display_set_orientation(display_dev, mode);
+}
 
 void dooi_peripherals_init(screen_type_t screen_type)
 {
@@ -133,7 +137,6 @@ void screen_switch_display(display_t display_id)
 	} else {
 		gpio_pin_configure_dt(&gpiob7, GPIO_OUTPUT_LOW);
 	}
-	k_msleep(2);
 	screen_manager.current_display = display_id;
 }
 
@@ -297,9 +300,11 @@ void app_dooi_ui(void *p1, void *p2, void *p3)
 
 	while (1) 
     {
-		k_mutex_lock(&display_mutex, K_FOREVER);
+		if (k_msgq_get(&display_flush_msgq, NULL, K_NO_WAIT) == 0) {
+			screen_flush();
+		}
+
 		screen_update();
-        k_mutex_unlock(&display_mutex);
 
 		if(screen_manager.current_screen == SCREEN_EMOJI_GIF || screen_manager.current_screen == SCREEN_WAKEUP_ACK)
 		{
@@ -320,8 +325,6 @@ void app_dooi_ui(void *p1, void *p2, void *p3)
 
 		if(screen_manager.next_screen != SCREEN_NULL)
 		{
-			k_mutex_lock(&display_mutex, K_FOREVER);
-
 			/* 屏幕切换处理 */
 			if (screen_manager.current_screen != screen_manager.next_screen) 
 			{
@@ -330,8 +333,6 @@ void app_dooi_ui(void *p1, void *p2, void *p3)
 				screen_load(screen_manager.next_screen);
 				screen_manager.current_screen = screen_manager.next_screen;
 			}
-
-			k_mutex_unlock(&display_mutex);
 
 			screen_manager.next_screen = SCREEN_NULL;
 		}
@@ -344,7 +345,7 @@ static int screen_sys_init(void)
 {
     k_thread_stack_t *stack;
     k_tid_t tid;
-    const int stack_size = 3 * 1024;
+    const int stack_size = 12 * 1024;
     const int thread_prio = 6;
 
     stack = csk_aligned_alloc(8, stack_size);
@@ -405,4 +406,4 @@ static int app_display_flush_init(void)
 }
 
 SYS_INIT(screen_sys_init, APPLICATION, CONFIG_APPLICATION_INIT_PRIORITY);
-SYS_INIT(app_display_flush_init, APPLICATION, CONFIG_APPLICATION_INIT_PRIORITY);
+// SYS_INIT(app_display_flush_init, APPLICATION, CONFIG_APPLICATION_INIT_PRIORITY);

@@ -38,6 +38,8 @@ int main(void)
 	components_resource_load();
 #endif
 
+	srand((unsigned)time(NULL));
+	
 	extern void ble_connect_task_init();
 	ble_connect_task_init();
 

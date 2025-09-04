@@ -35,7 +35,7 @@ struct jpeg_write_ctx {
 	uint32_t wrote;
 };
 
-static const uint16_t http_port = htons(8080);
+static const uint16_t http_port = htons(80);
 /* 静态声明HTTP服务记录 */
 STRUCT_SECTION_ITERABLE(dns_sd_rec, http_service) = {
     .instance = "My HTTP Server",  // 服务实例名

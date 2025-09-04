@@ -42,13 +42,6 @@ typedef enum {
     EYES_EMOTION_COUNT,
 }EYES_EMOTION;
 
-typedef enum{
-    EYES_DIS_SAME = 0,    // 同线
-    EYES_DIS_MIRROR = 4,  // 镜像，值不可修改
-    EYES_DIS_SINGLE = 5,
-    EYES_DIS_COUNT,
-}EYES_DIS_MODE;
-
 typedef enum {
     MAT_BACKGROUND,
     MAT_SCLERA,
@@ -78,7 +71,7 @@ typedef struct {
     uint16_t easeScaleMs;            // scale 平滑时长
     uint16_t easePupilMs;            // pupilAmount 平滑时长
 
-    EYES_DIS_MODE displayMode;       // 显示模式（如镜像）  
+    uint8_t displayMode;       // 显示模式（如镜像）  
     bool autoMove;                   // 开关：自动扫视
     bool autoBlink;                  // 开关：自动眨眼
     bool autoPupils;                 // 开关：自动瞳孔

@@ -14,6 +14,13 @@ typedef enum {
     DISPLAY_COUNT
 } display_t;
 
+typedef enum{
+    DIS_SAME = 0,    // 同线
+    DIS_MIRROR = 4,  // 镜像，值不可修改
+    DIS_SINGLE = 5,
+    DIS_COUNT,
+}disp_mode_t;
+
 /* 枚举定义不同的GIF动画 */
 typedef enum {
     ANIMATION_CLOSE_EYES_SLOW = 0,
@@ -112,6 +119,7 @@ void info_settings_handle_key(button_t button, button_event_t event);
 void screen_select_handle_key(button_t button, button_event_t event);
 
 /* 函数声明 */
+void screen_disp_mode_set(uint8_t mode);
 void screen_init(void);
 void screen_clear();
 int screen_set_brightness(uint8_t pwm_duty);
