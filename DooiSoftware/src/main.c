@@ -5,6 +5,7 @@
 #include "ic_message.h"
 #include <stdint.h>
 #include <stddef.h>
+#include <time.h>
 #include "resource.h"
 #include "app_player.h"
 #include "app_connect.h"

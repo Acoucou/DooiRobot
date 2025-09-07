@@ -62,14 +62,26 @@ void screen_disp_mode_set(uint8_t mode)
 void dooi_peripherals_init(screen_type_t screen_type)
 {
     sequence_type_t seq_type;
-    
+    static uint8_t eyes_status = 0;
+
     switch (screen_type)
     {
-    // case SCREEN_EYES:
-    //     // seq_type = screen_manager.is_first_wakeup ? 
-    //     //           SEQUENCE_EYES_FIRST_WAKEUP : SEQUENCE_EYES_DEFAULT;
-    //     seq_type = SEQUENCE_EYES_DEFAULT;
-    //     break;
+    case SCREEN_EYES:
+		switch(eyes_status)
+		{
+			case 0:
+				seq_type = SEQUENCE_EYES_FIRST_WAKEUP;
+				eyes_status = 1;
+				break;
+			case 1:
+				seq_type = SEQUENCE_EYES_DEFAULT;
+				eyes_status = 2;
+				break;
+			default:
+				return;
+				break;
+		}
+        break;
     
     case SCREEN_MUSIC_SPECTRUM:
         seq_type = SEQUENCE_MUSIC_DEFAULT;

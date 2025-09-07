@@ -72,14 +72,14 @@ static void settings_work_handler(struct k_work *work)
             app_player_start(TONE_PLAYER, "/lfs/102_conversation_open.mp3");
             app_chat_session_set_interactive_mode(SESSION_VOICE_INTER_MODE_CONTINUE);
 
-            lv_obj_add_state(info_settings.switch_ble, LV_STATE_CHECKED);
-            lv_obj_clear_state(info_settings.switch_ble, LV_STATE_DISABLED); // 清除禁用状态
+            lv_obj_add_state(info_settings.switch_conv, LV_STATE_CHECKED);
+            lv_obj_clear_state(info_settings.switch_conv, LV_STATE_DISABLED); // 清除禁用状态
         } else {
             app_player_start(TONE_PLAYER, "/lfs/103_conversation_close.mp3");
             app_chat_session_set_interactive_mode(SESSION_VOICE_INTER_MODE_ONESHOT);
 
-            lv_obj_add_state(info_settings.switch_ble, LV_STATE_DISABLED); // 添加禁用状态
-            lv_obj_clear_state(info_settings.switch_ble, LV_STATE_CHECKED); // 清除选中状态
+            lv_obj_add_state(info_settings.switch_conv, LV_STATE_DISABLED); // 添加禁用状态
+            lv_obj_clear_state(info_settings.switch_conv, LV_STATE_CHECKED); // 清除选中状态
         }
         break;
 

@@ -8,7 +8,7 @@ LOG_MODULE_REGISTER(action_sequences, LOG_LEVEL_DBG);
 
 /* ------------------------- 预定义动作序列 ------------------------- */
 
-// 惊讶序列（眼睛睁大，手臂向后，快速后退，蓝灯闪烁）
+// 惊讶序列
 static const action_cmd_t surprised_sequence[] = {
     #if (USE_EYE_ENMOTION)
         {.type = ACTION_EXPRESSION, .params.expression = {EYES_EMOTION_AMAZED}},
@@ -16,14 +16,10 @@ static const action_cmd_t surprised_sequence[] = {
         {.type = ACTION_EXPRESSION, .params.expression = {ANIMATION_FEAR}},  // 惊讶表情
     #endif
     {.type = ACTION_LED_SET, .params.led_set = {0x0000FF, 0x0000FF}},  // 蓝灯
-    // {.type = ACTION_EYE_MOVE, .params.eye_move = {0.0f, 1.0f, 200}},     // 眼睛向上睁大
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 180}},  // 手臂向后举起
-    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {-100, -100, 300}}, // 快速后退
-    {.type = ACTION_DELAY, .params.delay = {300}},
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 90}}    // 手臂复位中立
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 115}},  // 手臂向后举起
 };
 
-// 生气序列（手臂交叉，红灯，后退，愤怒表情）
+// 生气序列
 static const action_cmd_t angry_sequence[] = {
     #if (USE_EYE_ENMOTION)
          {.type = ACTION_EXPRESSION, .params.expression = {EYES_EMOTION_ANGRY}},
@@ -31,19 +27,35 @@ static const action_cmd_t angry_sequence[] = {
         {.type = ACTION_EXPRESSION, .params.expression = {ANIMATION_ANGRY}},  // GIF_ANGRY是愤怒表情
     #endif
     {.type = ACTION_LED_SET, .params.led_set = {0xFF0000, 0xFF0000}},  // 红灯
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_LEFT, 120}},  // 左手交叉
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_RIGHT, 60}},  // 右手交叉
-    {.type = ACTION_DELAY, .params.delay = {500}},
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_LEFT, 60}},  
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_RIGHT, 120}},
-    {.type = ACTION_DELAY, .params.delay = {500}},
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_LEFT, 120}},  // 左手交叉
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_RIGHT, 60}},  // 右手交叉
-    {.type = ACTION_DELAY, .params.delay = {500}},
-    // {.type = ACTION_EYE_MOVE, .params.eye_move = {0.0f, -0.5f, 300}},      // 眼睛向下瞪
-    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {-80, -80, 400}},  // 后退
-    {.type = ACTION_DELAY, .params.delay = {400}},
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 90}}     // 手臂复位
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 135}}     // 手臂复位
+};
+
+// 生气变体1
+static const action_cmd_t angry1_sequence[] = {
+#if (USE_EYE_ENMOTION)
+    {.type = ACTION_EXPRESSION, .params.expression = {EYES_EMOTION_ANGRY1}},
+#else
+    {.type = ACTION_EXPRESSION, .params.expression = {ANIMATION_ANGRY}},
+#endif
+    {.type = ACTION_LED_BLINK,  .params.led_blink  = {0xFF0000, 250, true}},
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 90}},
+};
+
+// 生气-注视左/右（轻微侧瞪）
+static const action_cmd_t angry_focus_left_sequence[] = {
+#if (USE_EYE_ENMOTION)
+    {.type = ACTION_EXPRESSION, .params.expression = {EYES_EMOTION_ANGRY_LEFT}},
+#endif
+    {.type = ACTION_LED_SET,    .params.led_set    = {0x550000, 0}},
+    {.type = ACTION_SERVO_MOVE, .params.servo_move  = {SERVO_LEFT,  135}},
+};
+
+static const action_cmd_t angry_focus_right_sequence[] = {
+#if (USE_EYE_ENMOTION)
+    {.type = ACTION_EXPRESSION, .params.expression = {EYES_EMOTION_ANGRY_RIGHT}},
+#endif
+    {.type = ACTION_LED_SET,    .params.led_set    = {0, 0x550000}},
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_RIGHT,  135}},
 };
 
 // 开心跳跃序列（手臂挥舞，履带跳跃，彩虹灯，开心表情）
@@ -54,17 +66,48 @@ static const action_cmd_t happy_sequence[] = {
         {.type = ACTION_EXPRESSION, .params.expression = {ANIMATION_EXCITED}},  // 开心表情
     #endif
     {.type = ACTION_LED_RAINBOW, .params.led_rainbow = {1000, true}},  // 彩虹灯
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 90}},  // 双手举起
-    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {100, 100, 200}},  // 快速前进
-    {.type = ACTION_DELAY, .params.delay = {200}},
-    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {-100, -100, 200}}, // 快速后退（跳跃感）
-    {.type = ACTION_DELAY, .params.delay = {200}},
-    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {100, 100, 200}},  // 重复跳跃
-    {.type = ACTION_DELAY, .params.delay = {200}},
-    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {-100, -100, 200}},
-    {.type = ACTION_DELAY, .params.delay = {200}},
-    // {.type = ACTION_EYE_MOVE, .params.eye_move = {0.0f, 1.0f, 300}},     // 眼睛向上兴奋
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 180}}     // 手臂放下
+    // {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 90}},  // 双手举起
+    // {.type = ACTION_DELAY, .params.delay = {300}},
+    // {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {100, 100, 100}},  // 快速前进
+    // {.type = ACTION_DELAY, .params.delay = {300}},
+    // {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {-100, -100, 100}}, // 快速后退（跳跃感）
+    // {.type = ACTION_DELAY, .params.delay = {300}},
+    // {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {100, 100, 100}},  // 重复跳跃
+    // {.type = ACTION_DELAY, .params.delay = {300}},
+    // {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {-100, -100, 100}},
+    // {.type = ACTION_DELAY, .params.delay = {300}},
+    // {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 180}}     // 手臂放下
+};
+
+// 开心变体1（左右摆臂，彩色呼吸）
+static const action_cmd_t happy1_sequence[] = {
+#if (USE_EYE_ENMOTION)
+    {.type = ACTION_EXPRESSION, .params.expression = {EYES_EMOTION_HAPPY1}},
+#else
+    {.type = ACTION_EXPRESSION, .params.expression = {ANIMATION_EXCITED}},
+#endif
+    {.type = ACTION_LED_BREATHE,.params.led_breathe = {0x00FFAA, 800, true}},
+    {.type = ACTION_SERVO_MOVE, .params.servo_move  = {SERVO_LEFT,  120}},
+    {.type = ACTION_SERVO_MOVE, .params.servo_move  = {SERVO_RIGHT,  60}},
+    {.type = ACTION_DELAY,      .params.delay       = {250}},
+    {.type = ACTION_SERVO_MOVE, .params.servo_move  = {SERVO_LEFT,   60}},
+    {.type = ACTION_SERVO_MOVE, .params.servo_move  = {SERVO_RIGHT, 120}},
+    {.type = ACTION_DELAY,      .params.delay       = {250}},
+    {.type = ACTION_SERVO_MOVE, .params.servo_move  = {SERVO_BOTH,   90}},
+};
+
+// 开心变体2（原地小步）
+static const action_cmd_t happy2_sequence[] = {
+#if (USE_EYE_ENMOTION)
+    {.type = ACTION_EXPRESSION, .params.expression = {EYES_EMOTION_HAPPY2}},
+#else
+    {.type = ACTION_EXPRESSION, .params.expression = {ANIMATION_EXCITED}},
+#endif
+    {.type = ACTION_LED_RAINBOW,.params.led_rainbow = {1400, true}},
+    {.type = ACTION_MOTOR_CONTROL,.params.motor_control={ 80, -80, 100}}, // 原地转
+    {.type = ACTION_DELAY,      .params.delay       = {200}},
+    {.type = ACTION_MOTOR_CONTROL,.params.motor_control={-80,  80, 100}},
+    {.type = ACTION_DELAY,      .params.delay       = {200}},
 };
 
 // 伤心序列
@@ -74,74 +117,25 @@ static const action_cmd_t sad_sequence[] = {
     #else
         {.type = ACTION_EXPRESSION, .params.expression = {ANIMATION_SAD}},  // GIF_CRY是哭泣表情
     #endif
-    {.type = ACTION_LED_BREATHE, .params.led_breathe = {0x0000FF, 500, false}},  // 蓝光闪烁呼吸
-    // {.type = ACTION_EYE_MOVE, .params.eye_move = {0.0f, -1.0f, 400}},  // 眼睛向下悲伤
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 0}},  // 手臂下垂
-    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {-50, -50, 600}},  // 缓慢后退
+    {.type = ACTION_LED_BREATHE, .params.led_breathe = {0x9100FF, 500, true}},  
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 0}},        // 手臂下垂
+    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {-50, -50, 500}},  // 缓慢后退
     {.type = ACTION_DELAY, .params.delay = {600}},
-    // {.type = ACTION_EYE_MOVE, .params.eye_move = {0.0f, 0.0f, 300}}
 };
 
-// 可爱序列（眨眼，双手小挥，小跳，粉色灯呼吸）
-static const action_cmd_t cute_sequence[] = {
+/* —— 肢体/注视动作 —— */
+// 注视：下方
+static const action_cmd_t focus_below_center_sequence[] = {
     #if (USE_EYE_ENMOTION)
-         {.type = ACTION_EXPRESSION, .params.expression = {EYES_EMOTION_HAPPY}},
-    #else
-        {.type = ACTION_EXPRESSION, .params.expression = {ANIMATION_EXCITED}},  // 开心表情
+        {.type = ACTION_EXPRESSION, .params.expression = {EYES_EMOTION_FOCUS_BELOW_CENTER}},
     #endif
-    {.type = ACTION_LED_BREATHE, .params.led_breathe = {0x69FFB4, 1000, true}},  // 粉色呼吸
-    // {.type = ACTION_EYE_WINK, .params.eye_wink = {500}},  // 眨眼
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 60}},  // 双手小举
-    {.type = ACTION_DELAY, .params.delay = {300}},
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 30}},
-    {.type = ACTION_DELAY, .params.delay = {300}},
-    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {80, 80, 200}},  // 小跳前进
-    {.type = ACTION_DELAY, .params.delay = {200}},
-    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {-80, -80, 200}},  // 后退
-    // 复位
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 90}},
-    {.type = ACTION_DELAY, .params.delay = {300}}
 };
-
-// 舞蹈序列
-static const action_cmd_t dance_routine_sequence[] = {
-    {.type = ACTION_EYE_MOVE, .params.eye_move = {0.0f, 0.0f, 400}},
-    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {100, 100, 500}},
-    {.type = ACTION_LED_BREATHE, .params.led_breathe = {0x55FF55, 1000, true}},
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_LEFT, 100}},
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_RIGHT, 120}},
-    {.type = ACTION_DELAY, .params.delay = {300}},  // 增加延时
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_LEFT, 120}},
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_RIGHT, 100}},
-    {.type = ACTION_DELAY, .params.delay = {300}},
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 90}},
-    {.type = ACTION_EYE_MOVE, .params.eye_move = {0.5f, 0.5f, 300}},
-    {.type = ACTION_LED_SET, .params.led_set = {0xFF00FF, 0x00FFFF}},
-    {.type = ACTION_DELAY, .params.delay = {500}},
-    {.type = ACTION_EYE_MOVE, .params.eye_move = {-0.5f, 0.5f, 300}},
-    {.type = ACTION_LED_SET, .params.led_set = {0xFFFF00, 0xFFA500}},
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 90}},
-    {.type = ACTION_DELAY, .params.delay = {300}}
-};
-
-// 问候序列（挥右手，前进，微笑，绿灯呼吸）
-static const action_cmd_t greeting_sequence[] = {
+// 注视：上中
+static const action_cmd_t focus_top_center_sequence[] = {
     #if (USE_EYE_ENMOTION)
-         {.type = ACTION_EXPRESSION, .params.expression = {EYES_EMOTION_HAPPY}},
-    #else
-        {.type = ACTION_EXPRESSION, .params.expression = {ANIMATION_EXCITED}},  // 开心表情
+        {.type = ACTION_EXPRESSION, .params.expression = {EYES_EMOTION_FOCUS_TOP_CENTER}},
     #endif
-    {.type = ACTION_LED_BREATHE, .params.led_breathe = {0xFF0000, 3000, true}},  // 绿光呼吸
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 90}},  // 右手举起挥手
-    {.type = ACTION_DELAY, .params.delay = {300}},
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_RIGHT, 0}},   // 右手放下
-    // {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {80, 80, 500}},  // 前进靠近
-    // {.type = ACTION_EYE_MOVE, .params.eye_move = {0.0f, 0.5f, 400}},     // 眼睛向上看（友好）
-    {.type = ACTION_DELAY, .params.delay = {300}},
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_RIGHT, 90}},  // 右手举起挥手
-    {.type = ACTION_DELAY, .params.delay = {300}},
 };
-
 // 左上看序列
 static const action_cmd_t left_eye_focus_sequence[] = {
     #if (USE_EYE_ENMOTION)
@@ -161,42 +155,87 @@ static const action_cmd_t right_eye_focus_sequence[] = {
     {.type = ACTION_LED_SET, .params.led_set = {0x0000FF, 0x000000}},
     {.type = ACTION_DELAY, .params.delay = {300}}
 };
-
-// 你别过来！
-static const action_cmd_t combo_action_sequence[] = {
+// 注视：左
+static const action_cmd_t focus_left_sequence[] = {
     #if (USE_EYE_ENMOTION)
-         {.type = ACTION_EXPRESSION, .params.expression = {EYES_EMOTION_SUSPICIOUS}},
-    #else
-        {.type = ACTION_EXPRESSION, .params.expression = {ANIMATION_DISDAIN}},
+        {.type = ACTION_EXPRESSION, .params.expression = {EYES_EMOTION_FOCUS_LEFT}},
     #endif
+};
+// 注视：右
+static const action_cmd_t focus_right_sequence[] = {
+    #if (USE_EYE_ENMOTION)
+    {.type = ACTION_EXPRESSION, .params.expression = {EYES_EMOTION_FOCUS_RIGHT}},
+    #endif
+};
+
+
+// 舞蹈序列
+static const action_cmd_t dance_routine_sequence[] = {
+    // {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {100, 100, 200}},
+    // {.type = ACTION_DELAY, .params.delay = {300}},  // 增加延时
     {.type = ACTION_LED_BREATHE, .params.led_breathe = {0x55FF55, 1000, true}},
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 180}},
-    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {100, 100, 200}},
-    {.type = ACTION_DELAY, .params.delay = {200}},
-    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {100, -100, 150}},
-    {.type = ACTION_DELAY, .params.delay = {150}},
-    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {-100, 100, 150}},
-};
-
-// 睡觉序列（眼睛闭合，手臂下垂，暗蓝灯呼吸）
-static const action_cmd_t sleep_sequence[] = {
-    {.type = ACTION_LED_BREATHE, .params.led_breathe = {0x000033, 2000, true}},  // 暗蓝呼吸（渐暗）
-    {.type = ACTION_EYE_MOVE, .params.eye_move = {0.0f, -1.0f, 500}},    // 眼睛向下闭合
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 0}},    // 手臂下垂
-    {.type = ACTION_DELAY, .params.delay = {1000}}                        // 保持休息
-};
-
-// 巡逻序列（眼睛扫描，履带转圈，白灯呼吸）
-static const action_cmd_t patrol_sequence[] = {
-    {.type = ACTION_LED_BREATHE, .params.led_breathe = {0xFFFFFF, 1500, false}},  // 白光呼吸（不对称，模拟扫描）
-    {.type = ACTION_EYE_MOVE, .params.eye_move = {1.0f, 0.0f, 400}},     // 眼睛向右看
-    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {80, -80, 500}},  // 右转
-     {.type = ACTION_DELAY, .params.delay = {500}},
-    {.type = ACTION_EYE_MOVE, .params.eye_move = {-1.0f, 0.0f, 400}},    // 眼睛向左看
-    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {-80, 80, 500}},  // 左转
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_LEFT, 100}},
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_RIGHT, 120}},
+    {.type = ACTION_DELAY, .params.delay = {300}},  // 增加延时
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_LEFT, 120}},
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_RIGHT, 100}},
+    {.type = ACTION_DELAY, .params.delay = {300}},
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 90}},
+    {.type = ACTION_LED_SET, .params.led_set = {0xFF00FF, 0x00FFFF}},
     {.type = ACTION_DELAY, .params.delay = {500}},
-    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {80, 80, 300}},   // 前进一段
-    {.type = ACTION_EYE_MOVE, .params.eye_move = {0.0f, 0.0f, 300}}      // 眼睛复位
+    {.type = ACTION_LED_SET, .params.led_set = {0xFFFF00, 0xFFA500}},
+    // {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 90}},
+    // {.type = ACTION_DELAY, .params.delay = {300}}
+};
+
+// 问候序列
+static const action_cmd_t greeting_sequence[] = {
+    #if (USE_EYE_ENMOTION)
+         {.type = ACTION_EXPRESSION, .params.expression = {EYES_EMOTION_HAPPY}},
+    #else
+        {.type = ACTION_EXPRESSION, .params.expression = {ANIMATION_EXCITED}},  // 开心表情
+    #endif
+    {.type = ACTION_LED_BREATHE, .params.led_breathe = {0xFF0000, 3000, true}},  // 绿光呼吸
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 90}},  // 右手举起挥手
+    {.type = ACTION_DELAY, .params.delay = {300}},
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_RIGHT, 0}},   // 右手放下
+    {.type = ACTION_DELAY, .params.delay = {300}},
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_RIGHT, 90}},  // 右手举起挥手
+    {.type = ACTION_DELAY, .params.delay = {300}},
+};
+
+// 挥手告别序列（挥左手，后退，蓝灯）
+static const action_cmd_t wave_goodbye_sequence[] = 
+{
+    #if (USE_EYE_ENMOTION)
+         {.type = ACTION_EXPRESSION, .params.expression = {EYES_EMOTION_SAD}},
+    #endif
+    {.type = ACTION_LED_SET, .params.led_set = {0x0000FF, 0x0000FF}},  // 蓝灯
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_LEFT, 90}}, // 左手举起挥手
+    {.type = ACTION_DELAY, .params.delay = {300}},
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_LEFT, 45}},
+    {.type = ACTION_DELAY, .params.delay = {300}},
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_LEFT, 90}},
+    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {-60, -60, 500}},  // 后退
+    {.type = ACTION_EYE_MOVE, .params.eye_move = {0.0f, 0.0f, 300}},     // 眼睛注视
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 90}}    // 复位
+};
+
+// 拥抱序列（手臂合拢，前进，橙灯，微笑）
+static const action_cmd_t hug_sequence[] = {
+    #if (USE_EYE_ENMOTION)
+         {.type = ACTION_EXPRESSION, .params.expression = {EYES_EMOTION_HAPPY}},
+    #else
+        {.type = ACTION_EXPRESSION, .params.expression = {ANIMATION_EXCITED}},  // 开心表情
+    #endif
+    {.type = ACTION_LED_BREATHE, .params.led_breathe = {0xFFA500, 1000, true}},  // 温暖橙光呼吸
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 0}},   // 手臂向前
+    {.type = ACTION_DELAY, .params.delay = {1000}},
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 30}},  // 手臂合拢模拟拥抱
+    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {60, 60, 400}}, 
+    // {.type = ACTION_EYE_MOVE, .params.eye_move = {0.0f, 0.5f, 300}},     // 眼睛向上温暖
+    {.type = ACTION_DELAY, .params.delay = {600}},
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 90}}    // 手臂复位
 };
 
 
@@ -224,48 +263,13 @@ static const action_cmd_t shake_no_sequence[] =
     #endif
     {.type = ACTION_LED_SET, .params.led_set = {0xFF0000, 0xFF0000}},  // 红灯
     {.type = ACTION_EYE_MOVE, .params.eye_move = {0.5f, 0.0f, 200}},   // 眼睛向右
-    {.type = ACTION_DELAY, .params.delay = {200}},
-    {.type = ACTION_EYE_MOVE, .params.eye_move = {-0.5f, 0.0f, 200}},  // 眼睛向左
-    {.type = ACTION_DELAY, .params.delay = {200}},
-    {.type = ACTION_EYE_MOVE, .params.eye_move = {0.0f, 0.0f, 200}},   // 复位
     {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_LEFT, 120}}, // 手臂交叉拒绝
     {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_RIGHT, 60}},
-    {.type = ACTION_DELAY, .params.delay = {500}}
+    {.type = ACTION_DELAY, .params.delay = {500}},
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 90}},
 };
 
-// 拥抱序列（手臂合拢，前进，橙灯，微笑）
-static const action_cmd_t hug_sequence[] = {
-    #if (USE_EYE_ENMOTION)
-         {.type = ACTION_EXPRESSION, .params.expression = {EYES_EMOTION_HAPPY}},
-    #else
-        {.type = ACTION_EXPRESSION, .params.expression = {ANIMATION_EXCITED}},  // 开心表情
-    #endif
-    {.type = ACTION_LED_BREATHE, .params.led_breathe = {0xFFA500, 1000, true}},  // 温暖橙光呼吸
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 0}},   // 手臂向前
-    {.type = ACTION_DELAY, .params.delay = {1000}},
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 30}},  // 手臂合拢模拟拥抱
-    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {60, 60, 400}},  // 前进靠近
-    // {.type = ACTION_EYE_MOVE, .params.eye_move = {0.0f, 0.5f, 300}},     // 眼睛向上温暖
-    {.type = ACTION_DELAY, .params.delay = {600}},
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 90}}    // 手臂复位
-};
 
-// 挥手告别序列（挥左手，后退，蓝灯）
-static const action_cmd_t wave_goodbye_sequence[] = 
-{
-    #if (USE_EYE_ENMOTION)
-         {.type = ACTION_EXPRESSION, .params.expression = {EYES_EMOTION_SAD}},
-    #endif
-    {.type = ACTION_LED_SET, .params.led_set = {0x0000FF, 0x0000FF}},  // 蓝灯
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_LEFT, 90}}, // 左手举起挥手
-    {.type = ACTION_DELAY, .params.delay = {300}},
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_LEFT, 45}},
-    {.type = ACTION_DELAY, .params.delay = {300}},
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_LEFT, 90}},
-    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {-60, -60, 500}},  // 后退
-    {.type = ACTION_EYE_MOVE, .params.eye_move = {0.0f, 0.0f, 300}},     // 眼睛注视
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 90}}    // 复位
-};
 
 // 思考序列（眼睛上移，手臂托腮，白灯呼吸）
 static const action_cmd_t thinking_sequence[] = 
@@ -277,9 +281,55 @@ static const action_cmd_t thinking_sequence[] =
     {.type = ACTION_EYE_MOVE, .params.eye_move = {0.2f, 0.8f, 400}},   // 眼睛上移侧看
     {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_RIGHT, 90}}, // 右手托腮模拟
     {.type = ACTION_DELAY, .params.delay = {800}},
-    {.type = ACTION_EYE_MOVE, .params.eye_move = {0.0f, 0.0f, 300}},   // 复位
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_RIGHT, 0}}
 };
+
+
+// 困惑序列（摇头，眼睛乱转，黄灯，手臂耸肩）
+static const action_cmd_t confused_sequence[] = {
+    #if (USE_EYE_ENMOTION)
+         {.type = ACTION_EXPRESSION, .params.expression = {EYES_EMOTION_FOCUS_TOP_CENTER}},
+    #endif
+    {.type = ACTION_LED_SET, .params.led_set = {0xFFFF00, 0xFFFF00}},  // 黄灯
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 90}},  // 耸肩
+    {.type = ACTION_DELAY, .params.delay = {400}},
+};
+
+// 巡逻序列（眼睛扫描，履带转圈，白灯呼吸）
+static const action_cmd_t patrol_sequence[] = {
+    {.type = ACTION_LED_BREATHE, .params.led_breathe = {0xFFFFFF, 1500, false}},  // 白光呼吸（不对称，模拟扫描）
+    {.type = ACTION_EYE_MOVE, .params.eye_move = {1.0f, 0.0f, 400}},     // 眼睛向右看
+    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {80, -80, 500}},  // 右转
+     {.type = ACTION_DELAY, .params.delay = {500}},
+    {.type = ACTION_EYE_MOVE, .params.eye_move = {-1.0f, 0.0f, 400}},    // 眼睛向左看
+    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {-80, 80, 500}},  // 左转
+    {.type = ACTION_DELAY, .params.delay = {500}},
+    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {80, 80, 300}},   // 前进一段
+    {.type = ACTION_EYE_MOVE, .params.eye_move = {0.0f, 0.0f, 300}}      // 眼睛复位
+};
+
+// 你别过来！
+static const action_cmd_t combo_action_sequence[] = {
+    #if (USE_EYE_ENMOTION)
+         {.type = ACTION_EXPRESSION, .params.expression = {EYES_EMOTION_SUSPICIOUS}},
+    #else
+        {.type = ACTION_EXPRESSION, .params.expression = {ANIMATION_DISDAIN}},
+    #endif
+    {.type = ACTION_LED_BREATHE, .params.led_breathe = {0x55FF55, 1000, true}},
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 180}},
+    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {100, 100, 100}},
+    {.type = ACTION_DELAY, .params.delay = {300}},
+    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {100, -100, 100}},
+    {.type = ACTION_DELAY, .params.delay = {200}},
+    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {-100, 100, 100}},
+};
+
+// 睡觉序列（眼睛闭合，手臂下垂，暗蓝灯呼吸）
+static const action_cmd_t sleep_sequence[] = {
+    {.type = ACTION_LED_BREATHE, .params.led_breathe = {0x000033, 2000, true}},  // 暗蓝呼吸（渐暗）
+    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 90}},    // 手臂下垂
+};
+
+
 
 // 哭泣序列（眼睛向下，蓝灯闪烁，手臂下垂，后退）
 static const action_cmd_t cry_sequence[] = {
@@ -315,40 +365,6 @@ static const action_cmd_t disdain_sequence[] = {
     {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {0, 0, 0}}
 };
 
-// 胜利序列（双手举起，旋转，绿灯闪烁）
-static const action_cmd_t victory_sequence[] = {
-    #if (USE_EYE_ENMOTION)
-         {.type = ACTION_EXPRESSION, .params.expression = {EYES_EMOTION_HAPPY}},
-    #else
-        {.type = ACTION_EXPRESSION, .params.expression = {ANIMATION_EXCITED}},  // 开心表情
-    #endif
-    {.type = ACTION_LED_BLINK, .params.led_blink = {0x00FF00, 300, true}},  // 绿灯闪烁
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 90}},  // 双手举起
-    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {100, -100, 800}},  // 旋转庆祝
-    {.type = ACTION_DELAY, .params.delay = {800}},
-    {.type = ACTION_EYE_MOVE, .params.eye_move = {0.0f, 1.0f, 300}},  // 眼睛向上
-    // 复位
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 0}},
-    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {0, 0, 0}},
-    {.type = ACTION_EYE_MOVE, .params.eye_move = {0.0f, 0.0f, 300}}
-};
-
-// 困惑序列（摇头，眼睛乱转，黄灯，手臂耸肩）
-static const action_cmd_t confused_sequence[] = {
-    #if (USE_EYE_ENMOTION)
-         {.type = ACTION_EXPRESSION, .params.expression = {EYES_EMOTION_FOCUS_TOP_CENTER}},
-    #endif
-    {.type = ACTION_LED_SET, .params.led_set = {0xFFFF00, 0xFFFF00}},  // 黄灯
-    {.type = ACTION_EYE_MOVE, .params.eye_move = {0.5f, 0.0f, 200}},  // 右看
-    {.type = ACTION_DELAY, .params.delay = {200}},
-    {.type = ACTION_EYE_MOVE, .params.eye_move = {-0.5f, 0.0f, 200}},  // 左看
-    {.type = ACTION_DELAY, .params.delay = {200}},
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 90}},  // 耸肩
-    {.type = ACTION_DELAY, .params.delay = {400}},
-    // 复位
-    {.type = ACTION_EYE_MOVE, .params.eye_move = {0.0f, 0.0f, 300}},
-    {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 0}}
-};
 
 // 害怕扩展序列（后退，手臂护胸，蓝灯闪烁）
 static const action_cmd_t fear_extended_sequence[] = {
@@ -357,15 +373,12 @@ static const action_cmd_t fear_extended_sequence[] = {
     #else
         {.type = ACTION_EXPRESSION, .params.expression = {ANIMATION_FEAR}},  // 惊讶表情
     #endif
-    {.type = ACTION_LED_BLINK, .params.led_blink = {0x0000FF, 200, false}},  // 蓝灯快速闪烁
-    {.type = ACTION_EYE_MOVE, .params.eye_move = {0.0f, 1.0f, 200}},  // 眼睛睁大
+    {.type = ACTION_LED_BLINK, .params.led_blink = {0x0000FF, 200, true}},  // 蓝灯快速闪烁
     {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 120}},  // 手臂护胸（向上偏后）
-    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {-100, -100, 500}},  // 快速后退
+    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {100, 100, 200}},  // 快速后退
     {.type = ACTION_DELAY, .params.delay = {500}},
     // 复位
     {.type = ACTION_SERVO_MOVE, .params.servo_move = {SERVO_BOTH, 0}},
-    {.type = ACTION_MOTOR_CONTROL, .params.motor_control = {0, 0, 0}},
-    {.type = ACTION_EYE_MOVE, .params.eye_move = {0.0f, 0.0f, 300}}
 };
 
 
@@ -409,37 +422,57 @@ static const action_cmd_t general_default_sequence[] = {
 
 /* ------------------------- 序列定义表 ------------------------- */
 static const action_sequence_t sequences[SEQUENCE_COUNT] = {
-    [SEQUENCE_DANCE_ROUTINE] = {.actions = dance_routine_sequence,.count = sizeof(dance_routine_sequence) / sizeof(action_cmd_t)},
-    [SEQUENCE_LEFT_EYE_FOCUS] = {.actions = left_eye_focus_sequence,.count = sizeof(left_eye_focus_sequence) / sizeof(action_cmd_t)},
-    [SEQUENCE_RIGHT_EYE_FOCUS] = {.actions = right_eye_focus_sequence,.count = sizeof(right_eye_focus_sequence) / sizeof(action_cmd_t)},
-    [SEQUENCE_COMBO_ACTION] = {.actions = combo_action_sequence, .count = sizeof(combo_action_sequence) / sizeof(action_cmd_t)},
-    [SEQUENCE_GREETING] = { .actions = greeting_sequence, .count = sizeof(greeting_sequence) / sizeof(action_cmd_t) },
-    [SEQUENCE_ANGRY] = { .actions = angry_sequence, .count = sizeof(angry_sequence) / sizeof(action_cmd_t) },
-    [SEQUENCE_HAPPY] = { .actions = happy_sequence, .count = sizeof(happy_sequence) / sizeof(action_cmd_t) },
-    [SEQUENCE_SLEEP] = { .actions = sleep_sequence, .count = sizeof(sleep_sequence) / sizeof(action_cmd_t) },
-    [SEQUENCE_SURPRISED] = { .actions = surprised_sequence, .count = sizeof(surprised_sequence) / sizeof(action_cmd_t) },
-    [SEQUENCE_PATROL] = { .actions = patrol_sequence, .count = sizeof(patrol_sequence) / sizeof(action_cmd_t) },
-    [SEQUENCE_NOD_AGREE] = { .actions = nod_agree_sequence, .count = sizeof(nod_agree_sequence) / sizeof(action_cmd_t) },
-    [SEQUENCE_SHAKE_NO] = { .actions = shake_no_sequence, .count = sizeof(shake_no_sequence) / sizeof(action_cmd_t) },
-    [SEQUENCE_HUG] = { .actions = hug_sequence, .count = sizeof(hug_sequence) / sizeof(action_cmd_t) },
-    [SEQUENCE_WAVE_GOODBYE] = { .actions = wave_goodbye_sequence, .count = sizeof(wave_goodbye_sequence) / sizeof(action_cmd_t) },
-    [SEQUENCE_THINKING] = { .actions = thinking_sequence, .count = sizeof(thinking_sequence) / sizeof(action_cmd_t) },
-    [SEQUENCE_CRY] = { .actions = cry_sequence, .count = sizeof(cry_sequence) / sizeof(action_cmd_t) },
-    [SEQUENCE_SAD] = { .actions = sad_sequence, .count = sizeof(sad_sequence) / sizeof(action_cmd_t) },
-    [SEQUENCE_DISDAIN] = {.actions = disdain_sequence, .count = sizeof(disdain_sequence) / sizeof(action_cmd_t)},
-    [SEQUENCE_CUTE] = {.actions = cute_sequence, .count = sizeof(cute_sequence) / sizeof(action_cmd_t)},
-    [SEQUENCE_VICTORY] = {.actions = victory_sequence, .count = sizeof(victory_sequence) / sizeof(action_cmd_t)},
-    [SEQUENCE_CONFUSED] = {.actions = confused_sequence, .count = sizeof(confused_sequence) / sizeof(action_cmd_t)},
-    [SEQUENCE_FEAR_EXTENDED] = {.actions = fear_extended_sequence, .count = sizeof(fear_extended_sequence) / sizeof(action_cmd_t)},
+    /* 基础表情 */
+    [SEQUENCE_SURPRISED]           = { .actions = surprised_sequence,           .count = sizeof(surprised_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_ANGRY]               = { .actions = angry_sequence,               .count = sizeof(angry_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_ANGRY1]              = { .actions = angry1_sequence,              .count = sizeof(angry1_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_ANGRY_FOCUS_LEFT]    = { .actions = angry_focus_left_sequence,    .count = sizeof(angry_focus_left_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_ANGRY_FOCUS_RIGHT]   = { .actions = angry_focus_right_sequence,   .count = sizeof(angry_focus_right_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_HAPPY]               = { .actions = happy_sequence,               .count = sizeof(happy_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_HAPPY1]              = { .actions = happy1_sequence,              .count = sizeof(happy1_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_HAPPY2]              = { .actions = happy2_sequence,              .count = sizeof(happy2_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_SAD]                 = { .actions = sad_sequence,                 .count = sizeof(sad_sequence)/sizeof(action_cmd_t) },
 
-    [SEQUENCE_EYES_DEFAULT] = {.actions = eyes_default_sequence,.count = sizeof(eyes_default_sequence) / sizeof(action_cmd_t)},
-    [SEQUENCE_EYES_FIRST_WAKEUP] = {.actions = eyes_first_wakeup_sequence,.count = sizeof(eyes_first_wakeup_sequence) / sizeof(action_cmd_t)},
-    [SEQUENCE_MUSIC_DEFAULT] = {.actions = music_default_sequence,.count = sizeof(music_default_sequence) / sizeof(action_cmd_t)},
-    [SEQUENCE_LUCKY_CAT_DEFAULT] = {.actions = lucky_cat_default_sequence,.count = sizeof(lucky_cat_default_sequence) / sizeof(action_cmd_t)},
-    [SEQUENCE_CAMERA_DEFAULT] = {.actions = camera_default_sequence,.count = sizeof(camera_default_sequence) / sizeof(action_cmd_t)},
-    [SEQUENCE_CLOCK_DEFAULT] = {.actions = clock_default_sequence,.count = sizeof(clock_default_sequence) / sizeof(action_cmd_t)},
-    [SEQUENCE_GENERAL_DEFAULT] = {.actions = general_default_sequence,.count = sizeof(general_default_sequence) / sizeof(action_cmd_t)},
+    /* 肢体/注视 */
+    [SEQUENCE_FOCUS_BELOW_CENTER]  = { .actions = focus_below_center_sequence,  .count = sizeof(focus_below_center_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_FOCUS_TOP_CENTER]    = { .actions = focus_top_center_sequence,    .count = sizeof(focus_top_center_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_FOCUS_TOP_LEFT]      = { .actions = left_eye_focus_sequence,      .count = sizeof(left_eye_focus_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_FOCUS_TOP_RIGHT]     = { .actions = right_eye_focus_sequence,     .count = sizeof(right_eye_focus_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_FOCUS_LEFT]          = { .actions = focus_left_sequence,          .count = sizeof(focus_left_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_FOCUS_RIGHT]         = { .actions = focus_right_sequence,         .count = sizeof(focus_right_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_DANCE_ROUTINE]       = { .actions = dance_routine_sequence,       .count = sizeof(dance_routine_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_GREETING]            = { .actions = greeting_sequence,            .count = sizeof(greeting_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_WAVE_GOODBYE]        = { .actions = wave_goodbye_sequence,        .count = sizeof(wave_goodbye_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_HUG]                 = { .actions = hug_sequence,                 .count = sizeof(hug_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_NOD_AGREE]           = { .actions = nod_agree_sequence,           .count = sizeof(nod_agree_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_SHAKE_NO]            = { .actions = shake_no_sequence,            .count = sizeof(shake_no_sequence)/sizeof(action_cmd_t) },
 
+    /* 认知状态 */
+    [SEQUENCE_THINKING]            = { .actions = thinking_sequence,            .count = sizeof(thinking_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_CONFUSED]            = { .actions = confused_sequence,            .count = sizeof(confused_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_PATROL]              = { .actions = patrol_sequence,              .count = sizeof(patrol_sequence)/sizeof(action_cmd_t) },
+    // [SEQUENCE_SEARCH]              = { .actions = search_sequence,              .count = sizeof(search_sequence)/sizeof(action_cmd_t) },
+
+    /* 生理状态 */
+    [SEQUENCE_SLEEP]               = { .actions = sleep_sequence,               .count = sizeof(sleep_sequence)/sizeof(action_cmd_t) },
+    // [SEQUENCE_CHARGING]            = { .actions = charging_sequence,            .count = sizeof(charging_sequence)/sizeof(action_cmd_t) },
+    // [SEQUENCE_LOW_BATTERY]         = { .actions = low_battery_sequence,         .count = sizeof(low_battery_sequence)/sizeof(action_cmd_t) },
+
+    /* 特殊互动 */
+    [SEQUENCE_COMBO_ACTION]        = { .actions = combo_action_sequence,        .count = sizeof(combo_action_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_CRY]                 = { .actions = cry_sequence,                 .count = sizeof(cry_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_DISDAIN]             = { .actions = disdain_sequence,             .count = sizeof(disdain_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_FEAR_EXTENDED]       = { .actions = fear_extended_sequence,       .count = sizeof(fear_extended_sequence)/sizeof(action_cmd_t) },
+    // [SEQUENCE_SHY]                 = { .actions = shy_sequence,                 .count = sizeof(shy_sequence)/sizeof(action_cmd_t) },
+
+    /* 页面默认动作 */
+    [SEQUENCE_EYES_DEFAULT]        = { .actions = eyes_default_sequence,        .count = sizeof(eyes_default_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_EYES_FIRST_WAKEUP]   = { .actions = eyes_first_wakeup_sequence,   .count = sizeof(eyes_first_wakeup_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_MUSIC_DEFAULT]       = { .actions = music_default_sequence,       .count = sizeof(music_default_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_LUCKY_CAT_DEFAULT]   = { .actions = lucky_cat_default_sequence,   .count = sizeof(lucky_cat_default_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_CAMERA_DEFAULT]      = { .actions = camera_default_sequence,      .count = sizeof(camera_default_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_CLOCK_DEFAULT]       = { .actions = clock_default_sequence,       .count = sizeof(clock_default_sequence)/sizeof(action_cmd_t) },
+    [SEQUENCE_GENERAL_DEFAULT]     = { .actions = general_default_sequence,     .count = sizeof(general_default_sequence)/sizeof(action_cmd_t) },
 };
 
 /* ======================= 动作队列管理（RAM中） ======================= */
@@ -460,7 +493,7 @@ void action_sequences_reset(void) {
     queue_count = 0;
     current_action.type = ACTION_NONE;
 
-    LOG_DBG("Action queue reset");
+    // LOG_DBG("Action queue reset");
 }
 
 bool action_sequences_enqueue_action(action_cmd_t cmd) {
@@ -483,6 +516,11 @@ bool action_sequences_enqueue(sequence_type_t seq_type) {
     }
     
     const action_sequence_t *seq = &sequences[seq_type];
+    if(seq == NULL || seq->count == 0)
+    {
+        return false;
+    }
+
     bool success = true;
     
     for (uint8_t i = 0; i < seq->count; i++) {
@@ -492,7 +530,7 @@ bool action_sequences_enqueue(sequence_type_t seq_type) {
         }
     }
     
-    LOG_DBG("Enqueued sequence: %d (%d actions)", seq_type, success ? seq->count : 0);
+    // LOG_DBG("Enqueued sequence: %d (%d actions)", seq_type, success ? seq->count : 0);
     return success;
 }
 
@@ -509,7 +547,7 @@ bool action_sequences_enqueue_custom(const action_cmd_t *actions, uint8_t count)
         }
     }
     
-    LOG_DBG("Enqueued custom sequence (%d/%d actions)", success ? count : 0, count);
+    // LOG_DBG("Enqueued custom sequence (%d/%d actions)", success ? count : 0, count);
     return success;
 }
 
@@ -531,7 +569,7 @@ void action_sequences_process(void)
         queue_head = (queue_head + 1) % ACTION_QUEUE_SIZE;
         queue_count--;
         action_start_time = k_uptime_get_32();
-        LOG_DBG("Start action: %d", current_action.type);
+        // LOG_DBG("Start action: %d", current_action.type);
         
         // 执行动作初始化
         switch (current_action.type) 
@@ -595,8 +633,12 @@ void action_sequences_process(void)
                 
             case ACTION_EXPRESSION:
             #if (USE_EYE_ENMOTION)
-                eye_controller_apply_emotion(&control, current_action.params.expression.animation);
                 screen_set_current(SCREEN_EYES);
+                if(current_action.params.expression.animation == SEQUENCE_SAD)
+                {
+                    printk("screen_set_current: Sad");
+                }
+                eye_controller_apply_emotion(&control, current_action.params.expression.animation);
             #else
                 switch_gif(current_action.params.expression.animation);
                 screen_set_current(SCREEN_EMOJI_GIF);
@@ -637,7 +679,7 @@ void action_sequences_process(void)
         
         if (action_completed) 
         {
-            LOG_DBG("Action completed: %d", current_action.type);
+            // LOG_DBG("Action completed: %d", current_action.type);
             current_action.type = ACTION_NONE;
         }
     }

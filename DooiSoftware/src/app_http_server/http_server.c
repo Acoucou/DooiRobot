@@ -24,6 +24,10 @@
 #include "tiny_jpeg.h"
 #include <zephyr/net/dns_sd.h>
 
+#define CONFIG_NEW_PRODUCT_ID_STRING "0b09ac67-67fa-4f4c-afc5-57b8229d6765"
+#define CONFIG_NEW_SECRET_ID_STRING "b074f485-f6a2-4046-8427-f748768bed6c"
+
+
 LOG_MODULE_REGISTER(http_server, LOG_LEVEL_DBG);
 
 int client = 0;
@@ -251,7 +255,7 @@ static void handle_device_commands(cJSON *json, cJSON *resp)
             screen_type_t screen_type = (screen_type_t)type->valueint;
             if (screen_type >= SCREEN_DIGITAL_CLOCK && screen_type < SCREEN_COUNT) {
                 if(screen_type == SCREEN_DIGITAL_CLOCK){ clock_mode = !clock_mode; digital_clock_mode_set(clock_mode); }
-                if(screen_type == SCREEN_EYES){ eye++; if(eye>=17) eye_emotion_selete(eye); }
+                if(screen_type == SCREEN_EYES){ eye++; if(eye>=17) eye = 0; eye_emotion_selete(eye); }
                 if(screen_type == SCREEN_EMOJI_GIF){ eye_mode++; if(eye_mode>8) eye_mode=0; switch_gif(eye_mode); }
                 screen_set_current(screen_type);
                 if (resp) { cJSON_AddStringToObject(resp, "status", "ok"); }
@@ -297,12 +301,12 @@ static void handle_device_commands(cJSON *json, cJSON *resp)
             
             if(strcmp(preset->valuestring, "default") == 0)
             {
-                set_dev_text("75471b7a-ae97-4048-bdc8-529c97cc713b", "56d6c961-725d-40d9-8028-2cc0158c7e58");
+                set_dev_text(CONFIG_PRODUCT_ID_STRING, CONFIG_SECRET_ID_STRING);
                 app_reconnect();
             }
             else if(strcmp(preset->valuestring, "new") == 0)
             {
-                set_dev_text("0b09ac67-67fa-4f4c-afc5-57b8229d6765", "b074f485-f6a2-4046-8427-f748768bed6c");
+                set_dev_text(CONFIG_NEW_PRODUCT_ID_STRING, CONFIG_NEW_SECRET_ID_STRING);
                 app_reconnect();
             }
         }

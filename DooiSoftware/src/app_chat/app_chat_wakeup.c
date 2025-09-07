@@ -125,8 +125,8 @@ int app_chat_wakeup_init(void)
 	wakeup_service_gcs_params_t wk_params;
 	wakeup_service_gcs_params_get(&wk_params);
 	wk_params.ref_gain_val = 1;
-	wk_params.mic_gain_a_val = 30;
-	wk_params.mic_gain_d_val = 30;
+	wk_params.mic_gain_a_val = 25;
+	wk_params.mic_gain_d_val = 0;
 	wakeup_service_gcs_params_set(&wk_params);
 
 	ret = wakeup_service_gcs_init();

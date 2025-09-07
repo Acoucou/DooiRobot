@@ -120,9 +120,6 @@ void handle_scenario(const char *scenario) {
     else if (strcmp(scenario, "sad") == 0) {
         action_sequences_enqueue(SEQUENCE_SAD);
     } 
-    else if (strcmp(scenario, "cute") == 0) {
-        action_sequences_enqueue(SEQUENCE_CUTE);
-    } 
     
     // 肢体动作处理
     else if (strcmp(scenario, "danceRoutine") == 0) {
@@ -143,10 +140,7 @@ void handle_scenario(const char *scenario) {
     else if (strcmp(scenario, "shakeNo") == 0) {
         action_sequences_enqueue(SEQUENCE_SHAKE_NO);
     } 
-    else if (strcmp(scenario, "victory") == 0) {
-        action_sequences_enqueue(SEQUENCE_VICTORY);
-    } 
-    
+
     // 认知状态处理
     else if (strcmp(scenario, "thinking") == 0) {
         action_sequences_enqueue(SEQUENCE_THINKING);
@@ -155,16 +149,16 @@ void handle_scenario(const char *scenario) {
         action_sequences_enqueue(SEQUENCE_CONFUSED);
     } 
     else if (strcmp(scenario, "leftEyeFocus") == 0) {
-        action_sequences_enqueue(SEQUENCE_LEFT_EYE_FOCUS);
+        action_sequences_enqueue(SEQUENCE_FOCUS_LEFT);
     } 
     else if (strcmp(scenario, "rightEyeFocus") == 0) {
-        action_sequences_enqueue(SEQUENCE_RIGHT_EYE_FOCUS);
+        action_sequences_enqueue(SEQUENCE_FOCUS_RIGHT);
     } 
     else if (strcmp(scenario, "patrol") == 0) {
         action_sequences_enqueue(SEQUENCE_PATROL);
     } 
     else if (strcmp(scenario, "search") == 0) {
-        action_sequences_enqueue(SEQUENCE_SEARCH);
+        // action_sequences_enqueue(SEQUENCE_SEARCH);
     } 
     
     // 生理状态处理

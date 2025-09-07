@@ -41,39 +41,45 @@ typedef enum {
     // 基础表情
     SEQUENCE_SURPRISED,         // 惊讶
     SEQUENCE_ANGRY,             // 生气
+    SEQUENCE_ANGRY1,
+    SEQUENCE_ANGRY_FOCUS_LEFT, 
+    SEQUENCE_ANGRY_FOCUS_RIGHT,
     SEQUENCE_HAPPY,             // 开心  
+    SEQUENCE_HAPPY1,
+    SEQUENCE_HAPPY2,
     SEQUENCE_SAD,               // 悲伤
-    SEQUENCE_CUTE,              // 可爱
-    
+
     // 肢体动作
+    SEQUENCE_FOCUS_BELOW_CENTER,
+    SEQUENCE_FOCUS_TOP_CENTER,
+    SEQUENCE_FOCUS_TOP_LEFT,
+    SEQUENCE_FOCUS_TOP_RIGHT,
+    SEQUENCE_FOCUS_LEFT,
+    SEQUENCE_FOCUS_RIGHT,
     SEQUENCE_DANCE_ROUTINE,     // 跳舞
     SEQUENCE_GREETING,          // 问候
     SEQUENCE_WAVE_GOODBYE,      // 挥手告别
     SEQUENCE_HUG,               // 拥抱
     SEQUENCE_NOD_AGREE,         // 点头同意
     SEQUENCE_SHAKE_NO,          // 摇头拒绝
-    SEQUENCE_VICTORY,           // 胜利
     
     // 认知状态
     SEQUENCE_THINKING,          // 思考
     SEQUENCE_CONFUSED,          // 困惑
-    SEQUENCE_LEFT_EYE_FOCUS,    // 左上看
-    SEQUENCE_RIGHT_EYE_FOCUS,   // 右上看
     SEQUENCE_PATROL,            // 巡逻
-    SEQUENCE_SEARCH,            // 寻找 (新增)
+    SEQUENCE_SEARCH,            // 寻找
     
     // 生理状态
     SEQUENCE_SLEEP,             // 睡觉
-    SEQUENCE_CHARGING,          // 充电 (新增)
-    SEQUENCE_LOW_BATTERY,       // 低电量 (新增)
+    SEQUENCE_CHARGING,          // 充电 
+    SEQUENCE_LOW_BATTERY,       // 低电量 
     
     // 特殊互动
     SEQUENCE_COMBO_ACTION,      // 矫情
     SEQUENCE_CRY,               // 哭泣
     SEQUENCE_DISDAIN,           // 鄙视
     SEQUENCE_FEAR_EXTENDED,     // 害怕
-    SEQUENCE_SHY,               // 害羞 (新增)
-
+    SEQUENCE_SHY,               // 害羞 
 
     // 页面默认动作
     SEQUENCE_EYES_DEFAULT,          // 眼睛页默认
@@ -84,7 +90,6 @@ typedef enum {
     SEQUENCE_CLOCK_DEFAULT,         // 时钟页默认
     SEQUENCE_GENERAL_DEFAULT,       // 通用默认
 
-    
     SEQUENCE_COUNT
 } sequence_type_t;
 

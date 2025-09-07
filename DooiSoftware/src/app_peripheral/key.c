@@ -20,16 +20,27 @@ static struct button_state btn_k4_state;
 
 
 // ========== 事件处理 ==========
+static const char *button_event_to_str(button_event_t event)
+{
+    switch (event) {
+    case BUTTON_PRESSED:       return "PRESSED";
+    case BUTTON_RELEASED:      return "RELEASED";
+    case BUTTON_LONG_PRESS:    return "LONG_PRESS";
+    case BUTTON_SINGLE_CLICK:  return "SINGLE_CLICK";
+    case BUTTON_DOUBLE_CLICK:  return "DOUBLE_CLICK";
+    case BUTTON_TRIPLE_CLICK:  return "TRIPLE_CLICK";
+    default:                   return "UNKNOWN";
+    }
+}
+
 static void handle_button_event(struct button_state *btn, button_event_t event)
 {
-    if(btn == &btn_k3_state)
-    {
-        LOG_INF("Button K3 event: %d", event);
+    if (btn == &btn_k3_state) {
+        LOG_INF("Button K3 event: %s", button_event_to_str(event));
         app_handle_button(BUTTON_LEFT, event);
-    }
-    else if(btn == &btn_k4_state)
-    {
-        LOG_INF("Button K4 event: %d", event);
+    } 
+    else if (btn == &btn_k4_state) {
+        LOG_INF("Button K4 event: %s", button_event_to_str(event));
         app_handle_button(BUTTON_RIGHT, event);
     }
 }
