@@ -330,7 +330,14 @@ void app_dooi_ui(void *p1, void *p2, void *p3)
 				}
 				else
 				{
-					screen_set_current(screen_manager.old_screen);	
+					if(screen_manager.old_screen == SCREEN_INFO || screen_manager.old_screen == SCREEN_PAGE_SELECT)
+					{
+						screen_set_current(SCREEN_EYES);
+					}
+					else
+					{
+						screen_set_current(screen_manager.old_screen);	
+					}
 				}
 			}
 		}

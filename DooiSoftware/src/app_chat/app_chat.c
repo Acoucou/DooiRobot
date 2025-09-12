@@ -14,6 +14,7 @@
 // #include "app_chat_ui.h"
 #include "app_download.h"
 #include "app_music_ctrl.h"
+#include "nvs.h"
 
 #ifdef CONFIG_UART_DISP_EN
 #include "uart_disp.h"
@@ -316,8 +317,10 @@ int app_chat_init(void)
 	// aweui_wakeup_option_t option = WEUI_WAKEUP_OPTION_NONE;
 	// get_wakeup_mode_from_ui(&option);
 	// if (option == AWEUI_WAKEUP_OPTION_VOICE_SINGLE_TURN) {
-		app_chat_session_set_interactive_mode(SESSION_VOICE_INTER_MODE_ONESHOT);
-		app_chat_session_vad_enable(true);
+	uint8_t option = 0;
+	user_nvs_read(&option);
+	app_chat_session_set_interactive_mode(option);
+	app_chat_session_vad_enable(true);
 	// } else if (option == AWEUI_WAKEUP_OPTION_VOICE_MULTI_TURN) {
 	// 	app_chat_session_set_interactive_mode(SESSION_VOICE_INTER_MODE_CONTINUE);
 	// 	app_chat_session_vad_enable(true);

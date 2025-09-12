@@ -9,4 +9,5 @@ zephyr_library_sources(
     soc_adc.c
     key.c
     action_sequences.c
+    nvs.c
 )

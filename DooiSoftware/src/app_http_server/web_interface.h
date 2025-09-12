@@ -76,7 +76,7 @@ const char html_content[] =
 
 /* === 摄像头 + 圆形摇杆（合并） === */
 "<div class=\"control-group\">"
-"<h3>摄像头 & 电机（圆形摇杆）</h3>"
+"<h3>摄像头 & 电机</h3>"
 "<div id=\"camera_wrap\">"
 "  <div>"
 "    <div id=\"camera_area\">"
@@ -89,6 +89,15 @@ const char html_content[] =
 "    <div id=\"joy_area\"><div id=\"joy_knob\"></div></div>"
 "    <div id=\"joy_axes\">x=0.00, y=0.00</div>"
 "    <div style=\"margin-bottom:6px;\">摇杆持续时间(ms)：<input type=\"number\" id=\"joy_duration\" value=\"1000\" style=\"width:120px\"></div>"
+"  </div>"
+"</div>"
+/* ===== 电机方向校准 ===== */
+"<div style=\"margin-top:15px; border-top:1px solid #eee; padding-top:15px;\">"
+"  <h4>电机方向校准</h4>"
+"  <div style=\"display:flex; gap: 20px; align-items:center;\">"
+"    <label style=\"font-weight:normal; display:inline-flex; align-items:center; gap:6px;\"><input type=\"checkbox\" id=\"motor_dir_left\">翻转左电机</label>"
+"    <label style=\"font-weight:normal; display:inline-flex; align-items:center; gap:6px;\"><input type=\"checkbox\" id=\"motor_dir_right\">翻转右电机</label>"
+"    <button type=\"button\" id=\"save_motor_dirs\" style=\"padding: 8px 12px;\">保存方向</button>"
 "  </div>"
 "</div>"
 "</div>"
@@ -201,6 +210,14 @@ const char html_content[] =
 "  const s2=parseInt(document.getElementById('servo2_offset').value)||0;"
 "  sendCommand('servo_offset',{servo1:s1,servo2:s2});"
 "}"
+
+/* ===== 电机方向保存 ===== */
+"document.getElementById('save_motor_dirs').addEventListener('click', () => {"
+"  const left_dir = document.getElementById('motor_dir_left').checked ? 1 : 0;"
+"  const right_dir = document.getElementById('motor_dir_right').checked ? 1 : 0;"
+"  sendCommand('motor_dir', {left: left_dir, right: right_dir}).then(r => {"
+"  });"
+"});"
 
 /* 颜色拾取与 RGB */
 "document.querySelectorAll('.color-box').forEach(b=>{b.addEventListener('click',function(){"

@@ -11,6 +11,8 @@
 LOG_MODULE_REGISTER(motor, LOG_LEVEL_INF);
 
 static motor_ctrl_t m_motor;
+uint8_t dir_left_trun = 0;
+uint8_t dir_right_trun = 0;
 
 #define GPIOA_2_NODE DT_ALIAS(gpioa2)
 static const struct gpio_dt_spec gpioa2 = GPIO_DT_SPEC_GET(GPIOA_2_NODE, gpios);
@@ -37,6 +39,15 @@ static void generate_accel_table(void) {
 /* 驱动电机硬件 */
 static void drive_motors(int16_t left, int16_t right) {
     uint8_t buff[2] = {0};
+
+    if(dir_left_trun)
+    {
+        left *= -1;
+    }
+    if(dir_right_trun)
+    {
+        right *= -1;
+    }
 
     /* 左电机控制 */
     if (left >= 0) {
@@ -169,6 +180,8 @@ void motor_init(void) {
         return;
     }
     gpio_pin_configure_dt(&gpioa2, GPIO_OUTPUT_INACTIVE);
+
+    user_nvs_read_motor_dirs(&dir_left_trun, &dir_right_trun);
 
     // 初始化控制结构
     memset(&m_motor, 0, sizeof(m_motor));

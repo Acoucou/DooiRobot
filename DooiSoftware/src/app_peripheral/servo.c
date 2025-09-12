@@ -13,6 +13,7 @@ LOG_MODULE_REGISTER(servo, LOG_LEVEL_INF);
 #include <string.h>
 #include <stdlib.h>
 #include "servo.h"
+#include "nvs.h"
 
 /* PWM通道定义 */
 static const struct pwm_dt_spec servos[] = {
@@ -28,8 +29,8 @@ static const struct gpio_dt_spec gpio_exd6 = GPIO_DT_SPEC_GET(GPIOD_6_NODE_D, gp
 
 /* 可选的脉宽偏移校准 */
 #define PWM_OFFSET  50000
-int servo1_offset = 50000;
-int servo2_offset = 50000;
+int servo1_offset = 0;
+int servo2_offset = 0;
 
 /* 舵机参数 */
 #define PWM_PERIOD_NS     20000000   // 20ms周期(50Hz)
@@ -144,6 +145,8 @@ void servo_init(void)
             return;
         }
     }
+    
+    user_nvs_read_servo_offsets(&servo1_offset, &servo2_offset);
 
     servo_enable();
 

@@ -189,7 +189,7 @@
                 };        
                 wakeup_cae_mlp_partition: partition@600000 {
                         label = "wakeup_cae_mlp_partition";
-                        reg = < 0x600000 0x200000 >;
+                        reg = < 0x600000 0x186a00 >;
                 };
                 wakeup_esr_mlp_partition: partition@800000 {
                         label = "wakeup_esr_mlp_partition";
@@ -240,13 +240,13 @@
         #size-cells = <0x1>;
         psram_cp: psram_cp@30000000 {
                 compatible = "listenai,csk6-psram-partition";
-                reg = <0x30000000 0x410000>;
+                reg = <0x30000000 0x3A0000>;
                 status = "okay";
         };
-        psram_ap: psram_ap@30410000 {
+        psram_ap: psram_ap@303A0000 {
                 compatible = "zephyr,memory-region",
                              "listenai,csk6-psram-partition";
-                reg = <0x30410000 0x3F0000>;
+                reg = <0x303A0000 0x460000>;
                 status = "okay";
                 zephyr,memory-region = "PSRAMAP";
         };

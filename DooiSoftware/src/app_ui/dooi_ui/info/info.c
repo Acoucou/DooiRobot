@@ -6,6 +6,7 @@
 #include "ble_connect.h"
 #include "player_manager.h"
 #include <zephyr/net/socket.h>
+#include "nvs.h"
 
 LV_FONT_DECLARE(lv_font_notosans_cs_medium_14);
 
@@ -37,6 +38,19 @@ typedef enum {
 } action_t;
 
 static volatile action_t pending_action = ACTION_NONE;
+
+/* 仅刷新对话模式相关的UI，不做播音/写回NVS等有副作用的事 */
+static void apply_conv_mode_ui(bool enabled)
+{
+    if (enabled) {
+        lv_obj_add_state(info_settings.switch_conv, LV_STATE_CHECKED);
+        lv_obj_clear_state(info_settings.switch_conv, LV_STATE_DISABLED);
+    } else {
+        lv_obj_clear_state(info_settings.switch_conv, LV_STATE_CHECKED);
+        lv_obj_add_state(info_settings.switch_conv, LV_STATE_DISABLED);
+    }
+}
+
 
 /* Work Handler：在系统线程中执行 */
 static void settings_work_handler(struct k_work *work)
@@ -71,16 +85,13 @@ static void settings_work_handler(struct k_work *work)
         if (info_settings.continuous_mode) {
             app_player_start(TONE_PLAYER, "/lfs/102_conversation_open.mp3");
             app_chat_session_set_interactive_mode(SESSION_VOICE_INTER_MODE_CONTINUE);
-
-            lv_obj_add_state(info_settings.switch_conv, LV_STATE_CHECKED);
-            lv_obj_clear_state(info_settings.switch_conv, LV_STATE_DISABLED); // 清除禁用状态
+            user_nvs_write(SESSION_VOICE_INTER_MODE_CONTINUE);
         } else {
             app_player_start(TONE_PLAYER, "/lfs/103_conversation_close.mp3");
             app_chat_session_set_interactive_mode(SESSION_VOICE_INTER_MODE_ONESHOT);
-
-            lv_obj_add_state(info_settings.switch_conv, LV_STATE_DISABLED); // 添加禁用状态
-            lv_obj_clear_state(info_settings.switch_conv, LV_STATE_CHECKED); // 清除选中状态
+		    user_nvs_write(SESSION_VOICE_INTER_MODE_ONESHOT);
         }
+        apply_conv_mode_ui(info_settings.continuous_mode);
         break;
 
     default:
@@ -199,6 +210,11 @@ static int info_settings_load() {
     
     info_settings.switch_conv = lv_switch_create(conv_container);
     lv_obj_set_size(info_settings.switch_conv, 40, 20);
+
+    uint8_t active = SESSION_VOICE_INTER_MODE_ONESHOT;  // 默认为单次
+    user_nvs_read(&active);
+    info_settings.continuous_mode = (active == SESSION_VOICE_INTER_MODE_CONTINUE);
+    apply_conv_mode_ui(info_settings.continuous_mode);
 
     return 0;
 }

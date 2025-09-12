@@ -31,18 +31,6 @@ __attribute__((section(".wakeup_cae_mlp.text"))) static const unsigned char wake
 #include "wakeup_cae_mlp.inc"
 };
 
-__attribute__((section(".wakeup_esr_mlp.text"))) static const unsigned char wakeup_esr_mlp[] = {
-#include "wakeup_esr_mlp.inc"
-};
-
-__attribute__((section(".wakeup_esr_main.text"))) static const unsigned char wakeup_esr_main[] = {
-#include "wakeup_esr_main.inc"
-};
-
-__attribute__((section(".wakeup_esr_cmds.text"))) static const unsigned char wakeup_esr_cmds[] = {
-#include "wakeup_esr_cmds.inc"
-};
-
 __attribute__((section(".wakeup_ai_wrap_config.text"))) static const unsigned char wakeup_ai_wrap_config[] = {
 #include "wakeup_ai_wrap_config.inc"
 };

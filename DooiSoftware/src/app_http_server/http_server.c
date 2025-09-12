@@ -23,14 +23,21 @@
 #include "app_camera.h"
 #include "tiny_jpeg.h"
 #include <zephyr/net/dns_sd.h>
+#include "nvs.h"
 
 #define CONFIG_NEW_PRODUCT_ID_STRING "0b09ac67-67fa-4f4c-afc5-57b8229d6765"
 #define CONFIG_NEW_SECRET_ID_STRING "b074f485-f6a2-4046-8427-f748768bed6c"
 
-
 LOG_MODULE_REGISTER(http_server, LOG_LEVEL_DBG);
 
-int client = 0;
+typedef struct {
+    int sock;
+    bool active;
+} stream_client_t;
+
+// 定义一个静态的流客户端实例，并用互斥锁保护
+static stream_client_t stream_client = { .sock = -1, .active = false };
+K_MUTEX_DEFINE(stream_client_mutex);
 
 static bool web_frame_start = false;
 struct jpeg_write_ctx {
@@ -162,6 +169,7 @@ static void handle_device_commands(cJSON *json, cJSON *resp)
 
         wakeup_service_gcs_set_mic_a_gain(ag);
         wakeup_service_gcs_set_mic_d_gain(dg);
+        user_nvs_write_mic_gains(ag, dg);
         LOG_INF("MIC gain set: analog=%d dB, digital=%d dB", ag, dg);
 
         if (resp) {
@@ -170,6 +178,34 @@ static void handle_device_commands(cJSON *json, cJSON *resp)
             cJSON_AddItemToObject(resp, "mic", micr);
             cJSON_AddNumberToObject(micr, "analog_gain", ag);
             cJSON_AddNumberToObject(micr, "digital_gain", dg);
+        }
+    }
+
+    /* ===== 新增：电机方向校准 ===== */
+    cJSON *motor_dir = cJSON_GetObjectItem(json, "motor_dir");
+    if (motor_dir) {
+        extern uint8_t dir_left_trun;
+        extern uint8_t dir_right_trun;
+        
+        cJSON *left_dir_item = cJSON_GetObjectItem(motor_dir, "left");
+        cJSON *right_dir_item = cJSON_GetObjectItem(motor_dir, "right");
+
+        if (left_dir_item) {
+            dir_left_trun = left_dir_item->valueint;
+        }
+        if (right_dir_item) {
+            dir_right_trun = right_dir_item->valueint;
+        }
+
+        user_nvs_write_motor_dirs(dir_left_trun, dir_right_trun);
+        LOG_INF("Motor direction saved: left_flipped=%d, right_flipped=%d", dir_left_trun, dir_right_trun);
+
+        if (resp) {
+            cJSON_AddStringToObject(resp, "status", "ok");
+            cJSON *md_resp = cJSON_CreateObject();
+            cJSON_AddItemToObject(resp, "motor_dir", md_resp);
+            cJSON_AddNumberToObject(md_resp, "left", dir_left_trun);
+            cJSON_AddNumberToObject(md_resp, "right", dir_right_trun);
         }
     }
 
@@ -200,22 +236,22 @@ static void handle_device_commands(cJSON *json, cJSON *resp)
     }
 
     /* ===== 摄像头 ===== */
-    cJSON *camera = cJSON_GetObjectItem(json, "camera");
-    if (camera) {
-        if (cJSON_GetObjectItem(camera, "enable")) {
-            camera_start();
-            if (resp) { cJSON_AddStringToObject(resp, "camera", "enabled"); }
-            web_frame_start = true;
-        }
-        if (cJSON_GetObjectItem(camera, "disable")) {
-            camera_stop();
-            if (resp) { cJSON_AddStringToObject(resp, "camera", "disabled"); }
-            web_frame_start = false;
-        }
-        if (resp && !cJSON_HasObjectItem(resp, "status")) {
-            cJSON_AddStringToObject(resp, "status", "ok");
-        }
-    }
+    // cJSON *camera = cJSON_GetObjectItem(json, "camera");
+    // if (camera) {
+    //     if (cJSON_GetObjectItem(camera, "enable")) {
+    //         camera_start();
+    //         if (resp) { cJSON_AddStringToObject(resp, "camera", "enabled"); }
+    //         web_frame_start = true;
+    //     }
+    //     if (cJSON_GetObjectItem(camera, "disable")) {
+    //         camera_stop();
+    //         if (resp) { cJSON_AddStringToObject(resp, "camera", "disabled"); }
+    //         web_frame_start = false;
+    //     }
+    //     if (resp && !cJSON_HasObjectItem(resp, "status")) {
+    //         cJSON_AddStringToObject(resp, "status", "ok");
+    //     }
+    // }
 
     /* ===== 舵机偏移 / 角度（原样） ===== */
     extern int servo1_offset;
@@ -226,6 +262,7 @@ static void handle_device_commands(cJSON *json, cJSON *resp)
         cJSON *offset2 = cJSON_GetObjectItem(servo_offset, "servo2");
         if (offset1) servo1_offset = offset1->valueint * 1000;
         if (offset2) servo2_offset = offset2->valueint * 1000;
+        user_nvs_write_servo_offsets(servo1_offset, servo2_offset);
         LOG_INF("servo1_offset=%d, servo2_offset=%d", servo1_offset, servo2_offset);
         if (resp) {
             cJSON_AddStringToObject(resp, "status", "ok");
@@ -358,27 +395,25 @@ static void jpeg_write(void *context, void *data, int size)
 	ctx->wrote += can_write;
 }
 
-/**
- * @note the picture must be formatted as rgb565
- */
+
 static int send_frame(void *pic, uint32_t w, uint32_t h)
 {
-	uint8_t *rgb888_buf;
+    uint8_t *rgb888_buf;
 	uint32_t rgb888_buf_size;
 	uint8_t *jpeg_buf;
 	uint32_t jpeg_buf_size;
-	int err;
+    int err;
 
-	rgb888_buf_size = w * h * 3;
+    rgb888_buf_size = w * h * 3;
 	jpeg_buf_size = rgb888_buf_size / 5;
 
 	/* convert picture to rgb888 */
-	rgb888_buf = csk_malloc(rgb888_buf_size);
+    rgb888_buf = csk_malloc(rgb888_buf_size);
 	if (rgb888_buf == NULL) {
 		LOG_ERR("no more mem to alloc rgb888 buffer, size:%d", rgb888_buf_size);
 		return -ENOMEM;
 	}
-	jpeg_buf = csk_malloc(jpeg_buf_size);
+    jpeg_buf = csk_malloc(jpeg_buf_size);
 	if (jpeg_buf == NULL) {
 		LOG_ERR("no more mem to alloc jpeg_buf buffer, size:%d", rgb888_buf_size);
 		csk_free(rgb888_buf);
@@ -402,30 +437,46 @@ static int send_frame(void *pic, uint32_t w, uint32_t h)
 	} else {
 		LOG_INF("jpeg compression done, size:%d/%d", jpeg_write_ctx.wrote, rgb888_buf_size);
 	}
-	/* rgb888_buf no longer needs to be used */
-	csk_free(rgb888_buf);
 
+	/* rgb888_buf no longer needs to be used */
+    csk_free(rgb888_buf);
+    /* 3. 发送 multipart 头部和 JPEG 数据 */
     char part_hdr[128] = {0};
     int hlen = snprintf(part_hdr, sizeof(part_hdr),
                         "--frame\r\n"
                         "Content-Type: image/jpeg\r\n"
                         "Content-Length: %zu\r\n\r\n", jpeg_write_ctx.wrote);
 
-    zsock_send(client, part_hdr, hlen, 0);
+    // 从受保护的结构体中获取socket
+    k_mutex_lock(&stream_client_mutex, K_FOREVER);
+    int client_sock = stream_client.sock;
+    k_mutex_unlock(&stream_client_mutex);
+
+    if (client_sock < 0) {
+        LOG_WRN("No active stream client to send frame to.");
+        return -1;
+    }
+
+    // 发送数据，如果发送失败（例如客户端断开），则认为连接已关闭
+    if (zsock_send(client_sock, part_hdr, hlen, 0) <= 0) {
+        return -1;
+    } 
 
     int body_len = jpeg_write_ctx.wrote;
     int sent = 0;
     while (sent < body_len) {
-        int ret = zsock_send(client, jpeg_write_ctx.buf, body_len - sent, 0);
-        if (ret <= 0) break;
+        int ret = zsock_send(client_sock, jpeg_buf + sent, body_len - sent, 0);
+        if (ret <= 0) {
+            return -1; // 发送失败
+        }
         sent += ret;
     }
 
-    zsock_send(client, "\r\n", 2, 0);
-
-	csk_free(jpeg_buf);
-
-	return err;
+    if (zsock_send(client_sock, "\r\n", 2, 0) <= 0) {
+        return -1;
+    }
+    csk_free(jpeg_buf);
+	return 0;
 }
 
 static void camera_thread(void *p1, void *p2, void *p3)
@@ -435,48 +486,78 @@ static void camera_thread(void *p1, void *p2, void *p3)
 
 	while (1) 
     {
-        if(!web_frame_start)
+        // 如果网页端没有启动预览，或者没有活动的流客户端，则长时间休眠
+        if(!web_frame_start || !stream_client.active)
         {
-		    k_msleep(10000);
+		    k_msleep(1000);
             continue;
         }
 
         ret = app_camera_vbuf_capture(&vbuf, &w, &h);
         if (ret) {
             LOG_INF("Camera capture failed: %d\n", ret);
+            k_msleep(500); // 捕获失败时稍作等待
             continue;
         }
 
-        send_frame(vbuf, 240, 240);
+        // 发送帧，如果返回错误（通常是socket发送失败），说明客户端已断开
+        if (send_frame(vbuf, 240, 240) != 0) {
+            LOG_INF("Stream client disconnected.");
+            k_mutex_lock(&stream_client_mutex, K_FOREVER);
+            if (stream_client.sock >= 0) {
+                zsock_close(stream_client.sock);
+                stream_client.sock = -1;
+                stream_client.active = false;
+            }
+            k_mutex_unlock(&stream_client_mutex);
+        }
 
         app_camera_vbuf_unref(vbuf);   // 释放视频缓冲区
 
-		k_msleep(200);
+		k_msleep(100); // 控制帧率，约10FPS
 	}
 }
 
+/**
+ * @brief 处理视频流请求
+ * @note 优化点：注册客户端socket到受保护的全局结构中
+ */
 static void handle_video_stream(int sock)
 {
-    // 设置视频流头
+    // 发送视频流的HTTP头部
     const char *hdr = "HTTP/1.1 200 OK\r\n"
-                      "Content-Type: multipart/x-mixed-replace; boundary=frame\r\n"
-                      "Connection: keep-alive\r\n\r\n";
+                      "Cache-Control: no-cache\r\n"
+                      "Pragma: no-cache\r\n"
+                      "Connection: keep-alive\r\n"
+                      "Content-Type: multipart/x-mixed-replace; boundary=frame\r\n\r\n";
     
     if (zsock_send(sock, hdr, strlen(hdr), 0) < 0) {
         LOG_ERR("Failed to send stream header");
         zsock_close(sock);
         return;
     }
+
+    // 线程安全地注册新的流客户端
+    k_mutex_lock(&stream_client_mutex, K_FOREVER);
+    
+    // 如果已有另一个客户端在观看，则断开旧的连接
+    if (stream_client.sock >= 0) {
+        LOG_WRN("Replacing old stream client with new one.");
+        zsock_close(stream_client.sock);
+    }
+    
+    stream_client.sock = sock;
+    stream_client.active = true;
+    LOG_INF("New stream client connected, sock: %d", sock);
+
+    k_mutex_unlock(&stream_client_mutex);
 }
 
 /* 客户端处理线程 */
-static void client_handler(int sock)
+static bool client_handler(int sock)
 {
     /* 设置接收超时（5秒）*/
-    struct timeval tv = {
-        .tv_sec = 5,
-        .tv_usec = 0
-    };
+    struct timeval tv = { .tv_sec = 5, .tv_usec = 0 };
     zsock_setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
 
     char buf[RECV_BUF_SIZE], method[7], path[128];
@@ -484,7 +565,7 @@ static void client_handler(int sock)
     
     if (received <= 0) {
         zsock_close(sock);
-        return;
+        return false; // 连接已关闭
     }
     
     buf[received] = '\0';
@@ -494,26 +575,22 @@ static void client_handler(int sock)
     
     if (strcmp(method, "GET") == 0 && strcmp(path, "/") == 0) {
         send_response(sock, 200, html_content);
+        zsock_close(sock);
     }
     else if (strcmp(method, "GET") == 0 && strcmp(path, "/stream") == 0) {
-        // 视频流请求处理
         handle_video_stream(sock);
-        return; // 保持连接打开
+        return true; // 返回true，表示连接需要保持打开，不要关闭
     }
     else if (strcmp(method, "POST") == 0) {
         char *json_start = strstr(buf, "\r\n\r\n");
         if (json_start) {
             json_start += 4;  // Skip headers
             
-            // Parse JSON
             cJSON *json = cJSON_Parse(json_start);
             if (json) {
                 cJSON *response = cJSON_CreateObject();
-
-                // Handle device commands & fill response
                 handle_device_commands(json, response);
 
-                // Fallback: if no field written, at least return success
                 if (cJSON_GetArraySize(response) == 0) {
                     cJSON_AddStringToObject(response, "status", "success");
                 }
@@ -530,13 +607,14 @@ static void client_handler(int sock)
         } else {
             send_response(sock, 400, "{\"error\":\"No JSON data found\"}");
         }
+        zsock_close(sock);
     } else {
         send_response(sock, 404, "{\"error\":\"Not found\"}");
+        zsock_close(sock);
     }
     
-    zsock_close(sock);
+    return false; // 其他请求处理完后关闭连接
 }
-
 
 #define UTC8_SEC            (8 * 3600)
 
@@ -599,7 +677,6 @@ static void http_server_thread(void *p1, void *p2, void *p3)
 
     STRUCT_SECTION_FOREACH(dns_sd_rec, it);
     
-    /* 创建监听socket */
     int sock = zsock_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sock < 0) {
         LOG_ERR("Socket creation failed: %d", -errno);
@@ -625,9 +702,11 @@ static void http_server_thread(void *p1, void *p2, void *p3)
     LOG_INF("HTTP server running on port %d", HTTP_PORT);
 
     while (1) {
-        client = zsock_accept(sock, NULL, NULL);
-        if (client >= 0) {
-            client_handler(client);
+        int client_sock = zsock_accept(sock, NULL, NULL);
+        if (client_sock >= 0) {
+            // client_handler 现在会返回一个布尔值
+            // 如果是流请求，返回true，不关闭socket
+            client_handler(client_sock);
         }
         k_msleep(20);
     }

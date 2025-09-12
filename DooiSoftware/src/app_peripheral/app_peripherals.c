@@ -8,6 +8,7 @@
 #include "action_sequences.h"
 #include <stdlib.h>
 #include "app_chat_session.h"
+#include "nvs.h"
 LOG_MODULE_REGISTER(app_peripherals, LOG_LEVEL_DBG);
 
 #define EXGPIOA_2_NODE_D DT_ALIAS(led0)
@@ -275,7 +276,7 @@ static bool match_patrol_over5(uint32_t ts_now) {
     //     g_ctx.last_fire_ts = ts_now;
     //     return true;
     // }
-    // return false;
+    return false;
 }
 
 // ====== 基础行为：单击立刻看向一边 ======
@@ -547,7 +548,8 @@ void app_peripherals(void *p1, void *p2, void *p3)
 {
     // uint16_t tick = 0, status = 0;
     // gpio_pin_configure_dt(&gpio_exa2, GPIO_OUTPUT_LOW);
-    
+    user_nvs_init();
+
     soc_adc_init();
     pca9635_init();
     motor_init();

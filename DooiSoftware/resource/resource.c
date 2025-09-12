@@ -41,21 +41,6 @@ int components_resource_load(void)
 	res_mgr->item[res_mgr->number].res_size = DT_RES_SIZE(resource_wakeup_cae_mlp);
 	res_mgr->number++;
 
-	res_mgr->item[res_mgr->number].res_type = COMP_RES_GCL_IPC_WAKEUP_ESR_MLP;
-	res_mgr->item[res_mgr->number].res_addr = DT_RES_ADDR(resource_wakeup_esr_mlp);
-	res_mgr->item[res_mgr->number].res_size = DT_RES_SIZE(resource_wakeup_esr_mlp);
-	res_mgr->number++;
-
-	res_mgr->item[res_mgr->number].res_type = COMP_RES_GCL_IPC_WAKEUP_ESR_MAIN;
-	res_mgr->item[res_mgr->number].res_addr = DT_RES_ADDR(resource_wakeup_esr_main);
-	res_mgr->item[res_mgr->number].res_size = DT_RES_SIZE(resource_wakeup_esr_main);
-	res_mgr->number++;
-
-	res_mgr->item[res_mgr->number].res_type = COMP_RES_GCL_IPC_WAKEUP_ESR_CMDS;
-	res_mgr->item[res_mgr->number].res_addr = DT_RES_ADDR(resource_wakeup_esr_cmds);
-	res_mgr->item[res_mgr->number].res_size = DT_RES_SIZE(resource_wakeup_esr_cmds);
-	res_mgr->number++;
-
 	res_mgr->item[res_mgr->number].res_type = COMP_RES_GCL_IPC_WAKEUP_AI_WRAP_CONFIG;
 	res_mgr->item[res_mgr->number].res_addr = DT_RES_ADDR(resource_wakeup_ai_wrap_conf);
 	res_mgr->item[res_mgr->number].res_size = DT_RES_SIZE(resource_wakeup_ai_wrap_conf);

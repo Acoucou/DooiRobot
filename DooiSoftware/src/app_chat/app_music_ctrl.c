@@ -18,6 +18,7 @@
 #include "app_obj_rec.h"
 #include "ble_connect.h"
 #include "action_sequences.h"
+#include "nvs.h"
 LOG_MODULE_REGISTER(app_player_ctrl);
 
 #define MUSIC_VOLUME_STEP (10)
@@ -267,9 +268,11 @@ void handle_control(const char *control) {
     }
 	else if (strcmp(control, "conversation_open") == 0) {
 		app_chat_session_set_interactive_mode(SESSION_VOICE_INTER_MODE_CONTINUE);
+		user_nvs_write(SESSION_VOICE_INTER_MODE_CONTINUE);
 	}
 	else if (strcmp(control, "conversation_close") == 0) {
 		app_chat_session_set_interactive_mode(SESSION_VOICE_INTER_MODE_ONESHOT);
+		user_nvs_write(SESSION_VOICE_INTER_MODE_ONESHOT);
 	}
     else {
         LOG_INF("Unknown control: %s", control);

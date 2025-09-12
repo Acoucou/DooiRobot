@@ -47,29 +47,8 @@ app_generate_inc_file_for_target(
 
 app_generate_inc_file_for_target(
   app
-  ../resource/algo_resource/wakeup/cae/mlp.bin
+  ../resource/algo_resource/wakeup/cae_esr.bin
   ${gen_dir}/wakeup_cae_mlp.inc
-  res_image_dependencies
-)
-
-app_generate_inc_file_for_target(
-  app
-  ../resource/algo_resource/wakeup/esr/mlp.bin
-  ${gen_dir}/wakeup_esr_mlp.inc
-  res_image_dependencies
-)
-
-app_generate_inc_file_for_target(
-  app
-  ../resource/algo_resource/wakeup/esr/main.bin
-  ${gen_dir}/wakeup_esr_main.inc
-  res_image_dependencies
-)
-
-app_generate_inc_file_for_target(
-  app
-  ../resource/algo_resource/wakeup/esr/cmd.bin
-  ${gen_dir}/wakeup_esr_cmds.inc
   res_image_dependencies
 )
 

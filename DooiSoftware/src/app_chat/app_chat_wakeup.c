@@ -12,6 +12,7 @@
 #include "wakeup_debug.h"
 #endif
 #include "screen.h"
+#include "nvs.h"
 
 LOG_MODULE_REGISTER(app_chat_wakeup);
 
@@ -125,8 +126,9 @@ int app_chat_wakeup_init(void)
 	wakeup_service_gcs_params_t wk_params;
 	wakeup_service_gcs_params_get(&wk_params);
 	wk_params.ref_gain_val = 1;
-	wk_params.mic_gain_a_val = 25;
-	wk_params.mic_gain_d_val = 0;
+	user_nvs_read_mic_gains(&wk_params.mic_gain_a_val, &wk_params.mic_gain_d_val);
+	// wk_params.mic_gain_a_val = 25;
+	// wk_params.mic_gain_d_val = 0;
 	wakeup_service_gcs_params_set(&wk_params);
 
 	ret = wakeup_service_gcs_init();
